@@ -32,14 +32,15 @@ public class Connect4 {
 		// Create players:
 		Player[] players = {
 			new RandomPlayer("Random"),
-			new AIPlayerK("Kevin")
+			new RandomPlayer("Random2"),
+			//new AIPlayerK("Kevin")
 		};
 		
 		// Start a single game with GUI:	
-		//singleGameMode(players[0], players[1]);
+		singleGameMode(players[0], players[1]);
 		
 		// Start a tournament with many rounds:
-		tournamentMode(players, 1000);
+		//tournamentMode(players, 1000);
 	}
 	
 	/**

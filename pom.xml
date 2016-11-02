@@ -8,10 +8,11 @@
     <artifactId>connect4</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>20.0</version>
-    </dependency>
-
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>20.0</version>
+        </dependency>
+    </dependencies>
 </project>
