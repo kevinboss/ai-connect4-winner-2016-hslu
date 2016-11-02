@@ -17,6 +17,10 @@ public class AIPlayerK extends Player {
 
     @Override
     public int play(char[][] board) {
-        return 0;
+        int column = 0;
+        while (board[column][0] != '-') {
+            column++;
+        }
+        return column;
     }
 }
