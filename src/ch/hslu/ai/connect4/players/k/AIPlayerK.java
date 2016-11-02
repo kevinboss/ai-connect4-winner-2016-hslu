@@ -1,4 +1,4 @@
-package ch.hslu.ai.connect4.players;
+package ch.hslu.ai.connect4.players.k;
 
 import ch.hslu.ai.connect4.Player;
 

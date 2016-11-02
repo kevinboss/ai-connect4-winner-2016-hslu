@@ -1,6 +1,6 @@
 package ch.hslu.ai.connect4;
 
-import ch.hslu.ai.connect4.players.AIPlayerK;
+import ch.hslu.ai.connect4.players.k.AIPlayerK;
 import ch.hslu.ai.connect4.players.RandomPlayer;
 
 import java.util.HashMap;
