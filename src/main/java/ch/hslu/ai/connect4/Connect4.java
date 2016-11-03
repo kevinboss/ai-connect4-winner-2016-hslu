@@ -1,7 +1,5 @@
 package ch.hslu.ai.connect4;
 
-import ch.hslu.ai.connect4.players.FirstColumnPlayer;
-import ch.hslu.ai.connect4.players.FirstRowPlayer;
 import ch.hslu.ai.connect4.players.RandomPlayer;
 import ch.hslu.ai.connect4.players.k.multithreaded.AIPlayerK;
 
@@ -44,7 +42,12 @@ public class Connect4 {
         //singleGameMode(players[0], players[1]);
 
         // Start a tournament with many rounds:
-        tournamentMode(players, 1000);
+        long startTime = System.currentTimeMillis();
+        tournamentMode(players, 100);
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.out.println(elapsedTime);
+
     }
 
     /**

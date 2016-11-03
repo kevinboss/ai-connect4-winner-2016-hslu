@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by kevin_emgquz4 on 02.11.2016.
  */
-public class Connect4MiniMax extends GenericSingleThreadedMiniMax<Connect4GameState> {
+public class Connect4MiniMax extends GenericMiniMax<Connect4GameState> {
     public Connect4MiniMax(int threadAmount) {
         super(threadAmount);
     }

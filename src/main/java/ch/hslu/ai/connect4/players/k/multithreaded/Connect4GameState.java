@@ -5,14 +5,14 @@ import com.google.common.primitives.Ints;
 /**
  * Created by kevin_emgquz4 on 02.11.2016.
  */
-public class Connect4GameState {
+public class Connect4GameState extends BaseNode {
     private final char mySymbol;
 
     private int[][] board;
     private int column;
     private int row;
 
-    public int[][] getBoard () {
+    public int[][] getBoard() {
         return this.board;
     }
 
@@ -60,5 +60,9 @@ public class Connect4GameState {
 
     public int getRow() {
         return row;
+    }
+
+    public int getCacheHash() {
+        return java.util.Arrays.deepHashCode(board);
     }
 }

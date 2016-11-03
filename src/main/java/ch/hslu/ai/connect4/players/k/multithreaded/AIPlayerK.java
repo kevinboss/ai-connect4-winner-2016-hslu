@@ -15,12 +15,19 @@ public class AIPlayerK extends Player {
      */
     public AIPlayerK(String name) {
         super(name);
-        this.connect4MiniMax = new Connect4MiniMax(1);
+        int cores = Runtime.getRuntime().availableProcessors();
+        this.connect4MiniMax = new Connect4MiniMax(2);
     }
 
     @Override
     public int play(char[][] board) {
-        final Connect4GameState bestMove = this.connect4MiniMax.getBestMove(new Connect4GameState(board, this.getSymbol()), 5);
-        return bestMove.getColumn();
+        final Connect4GameState bestMove;
+        try {
+            bestMove = this.connect4MiniMax.getBestMove(new Connect4GameState(board, this.getSymbol()), 5);
+            return bestMove.getColumn();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }
