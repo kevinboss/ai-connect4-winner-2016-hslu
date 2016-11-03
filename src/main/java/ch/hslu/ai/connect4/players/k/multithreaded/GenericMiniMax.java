@@ -17,7 +17,7 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
     private final int threadAmount;
     ExecutorService executor = Executors.newCachedThreadPool();
 
-    private final Cache<Key, Integer> payoffCache = CacheBuilder.newBuilder()
+    private final Cache<Integer, Integer> payoffCache = CacheBuilder.newBuilder()
             .maximumSize(1000)
             .build();
 
@@ -39,7 +39,12 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
             this.boardHash = boardHash;
             this.depth = depth;
         }
+
+        public int getBoardHash() {
+            return boardHash * 100 + depth;
+        }
     }
+
     public NodeT getBestMove(final NodeT node,
                              final int depth) throws ExecutionException, InterruptedException {
         int bestMovePayoff = 0;
@@ -61,7 +66,7 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                                 final Integer alpha,
                                 final Integer beta,
                                 final boolean maximizingPlayer) throws ExecutionException, InterruptedException {
-        return payoffCache.get(new Key(node.getCacheHash(), depth), new Callable<Integer>() {
+        return payoffCache.get(new Key(node.getCacheHash(), depth).getBoardHash(), new Callable<Integer>() {
             public Integer call() throws Exception {
                 return alphabeta(node, depth, alpha, beta, maximizingPlayer);
             }
@@ -80,22 +85,27 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                 final List<NodeT> children = getNodeChildren(node, maximizingPlayer);
                 final List<List<NodeT>> childrenPartitions = Lists.partition(children, this.threadAmount);
                 for (List<NodeT> childrenPartition : childrenPartitions) {
-                    List<Future<Integer>> tmpFutures = new ArrayList<Future<Integer>>();
-                    for (final NodeT child : childrenPartition) {
-                        final Integer finalNestedAlpha = alpha;
-                        final Integer finalNestedBeta = beta;
-                        tmpFutures.add(executor.submit(new Callable<Integer>() {
-                            public Integer call() throws Exception {
-                                return alphabetaCached(child, depth - 1, finalNestedAlpha, finalNestedBeta, false);
-                            }
-                        }));
+                    if (children.size() > 1) {
+                        List<Future<Integer>> tmpFutures = new ArrayList<Future<Integer>>();
+                        for (final NodeT child : childrenPartition) {
+                            final Integer finalNestedAlpha = alpha;
+                            final Integer finalNestedBeta = beta;
+                            tmpFutures.add(executor.submit(new Callable<Integer>() {
+                                public Integer call() throws Exception {
+                                    return alphabetaCached(child, depth - 1, finalNestedAlpha, finalNestedBeta, false);
+                                }
+                            }));
+                        }
+                        List<Integer> candidates = new ArrayList<Integer>();
+                        if (alpha != null) candidates.add(alpha);
+                        for (Future<Integer> tmpFuture : tmpFutures) {
+                            candidates.add(tmpFuture.get());
+                        }
+                        alpha = Collections.max(candidates);
+                    } else if (children.size() > 0) {
+                        int tmp = alphabeta(children.get(0), depth - 1, alpha, beta, false);
+                        alpha = alpha == null ? tmp : Math.max(alpha, tmp);
                     }
-                    List<Integer> candidates = new ArrayList<Integer>();
-                    if (alpha != null) candidates.add(alpha);
-                    for (Future<Integer> tmpFuture : tmpFutures) {
-                        candidates.add(tmpFuture.get());
-                    }
-                    alpha = Collections.max(candidates);
                     if (beta != null && beta <= alpha) {
                         break;
                     }
@@ -105,22 +115,27 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                 final List<NodeT> children = getNodeChildren(node, maximizingPlayer);
                 final List<List<NodeT>> childrenPartitions = Lists.partition(children, this.threadAmount);
                 for (List<NodeT> childrenPartition : childrenPartitions) {
-                    List<Future<Integer>> tmpFutures = new ArrayList<Future<Integer>>();
-                    for (final NodeT child : childrenPartition) {
-                        final Integer finalNestedAlpha = alpha;
-                        final Integer finalNestedBeta = beta;
-                        tmpFutures.add(executor.submit(new Callable<Integer>() {
-                            public Integer call() throws Exception {
-                                return alphabetaCached(child, depth - 1, finalNestedAlpha, finalNestedBeta, true);
-                            }
-                        }));
+                    if (children.size() > 1) {
+                        List<Future<Integer>> tmpFutures = new ArrayList<Future<Integer>>();
+                        for (final NodeT child : childrenPartition) {
+                            final Integer finalNestedAlpha = alpha;
+                            final Integer finalNestedBeta = beta;
+                            tmpFutures.add(executor.submit(new Callable<Integer>() {
+                                public Integer call() throws Exception {
+                                    return alphabetaCached(child, depth - 1, finalNestedAlpha, finalNestedBeta, true);
+                                }
+                            }));
+                        }
+                        List<Integer> candidates = new ArrayList<Integer>();
+                        if (beta != null) candidates.add(beta);
+                        for (Future<Integer> tmpFuture : tmpFutures) {
+                            candidates.add(tmpFuture.get());
+                        }
+                        beta = Collections.min(candidates);
+                    } else if (children.size() > 0) {
+                        int tmp = alphabeta(children.get(0), depth - 1, alpha, beta, true);
+                        beta = beta == null ? tmp : Math.min(beta, tmp);
                     }
-                    List<Integer> candidates = new ArrayList<Integer>();
-                    if (beta != null) candidates.add(beta);
-                    for (Future<Integer> tmpFuture : tmpFutures) {
-                        candidates.add(tmpFuture.get());
-                    }
-                    beta = Collections.min(candidates);
                     if (alpha != null && beta <= alpha) {
                         break;
                     }

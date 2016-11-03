@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by kevin_emgquz4 on 02.11.2016.
+ * Created by Kevin Boss on 02.11.2016.
  */
 public class Connect4MiniMax extends GenericMiniMax<Connect4GameState> {
     public Connect4MiniMax(int threadAmount) {
@@ -24,8 +24,8 @@ public class Connect4MiniMax extends GenericMiniMax<Connect4GameState> {
     }
 
     private int[][] copyOf(int[][] oldArray) {
-        int [][] myInt = new int[oldArray.length][];
-        for(int i = 0; i < oldArray.length; i++)
+        int[][] myInt = new int[oldArray.length][];
+        for (int i = 0; i < oldArray.length; i++)
             myInt[i] = oldArray[i].clone();
         return myInt;
     }

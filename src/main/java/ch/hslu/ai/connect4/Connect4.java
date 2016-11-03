@@ -43,7 +43,7 @@ public class Connect4 {
 
         // Start a tournament with many rounds:
         long startTime = System.currentTimeMillis();
-        tournamentMode(players, 1000);
+        tournamentMode(players, 10);
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         System.out.println(elapsedTime);
