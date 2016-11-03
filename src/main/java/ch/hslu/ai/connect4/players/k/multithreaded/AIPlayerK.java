@@ -16,7 +16,7 @@ public class AIPlayerK extends Player {
     public AIPlayerK(String name) {
         super(name);
         int cores = Runtime.getRuntime().availableProcessors();
-        this.connect4MiniMax = new Connect4MiniMax(2);
+        this.connect4MiniMax = new Connect4MiniMax(cores);
     }
 
     @Override
