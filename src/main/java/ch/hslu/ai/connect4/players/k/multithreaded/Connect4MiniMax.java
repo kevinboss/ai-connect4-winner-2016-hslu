@@ -7,18 +7,21 @@ import java.util.List;
  * Created by Kevin Boss on 02.11.2016.
  */
 public class Connect4MiniMax extends GenericMiniMax<Connect4GameState> {
+    private Connect4GameStateEvaluator connect4GameStateEvaluator = new Connect4GameStateEvaluator();
+
     public Connect4MiniMax(int threadAmount) {
         super(threadAmount);
     }
 
     protected boolean isTerminalNode(Connect4GameState node) {
-        return isGameDrawn(node.getBoard()) || didAnyoneWin(node.getBoard());
+        return this.connect4GameStateEvaluator.isGameDrawn(node)
+                || this.connect4GameStateEvaluator.didAnyoneWin(node);
     }
 
     protected int getHeuristicNodeValue(Connect4GameState node) {
-        if (didOpponentWin(node.getBoard()))
+        if (this.connect4GameStateEvaluator.didOpponentWin(node))
             return -1;
-        if (didIWin(node.getBoard()))
+        if (this.connect4GameStateEvaluator.didIWin(node))
             return 1;
         return 0;
     }
@@ -47,108 +50,5 @@ public class Connect4MiniMax extends GenericMiniMax<Connect4GameState> {
             }
         }
         return children;
-    }
-
-    private boolean isGameDrawn(int[][] board) {
-        int columns = board.length;
-        int rows = board[0].length;
-        for (int i = 0; i < columns; i++) {
-            for (int j = 0; j < rows; j++) {
-                if (board[i][j] == 0) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean didAnyoneWin(int[][] board) {
-        return didIWin(board) || didOpponentWin(board);
-    }
-
-    private boolean didIWin(int[][] board) {
-        return hasFourInColumn(board, 1)
-                || hasFourInDiagonal(board, 1)
-                || hasFourInRow(board, 1);
-    }
-
-    private boolean didOpponentWin(int[][] board) {
-        return hasFourInColumn(board, 2)
-                || hasFourInDiagonal(board, 2)
-                || hasFourInRow(board, 2);
-    }
-
-    private boolean hasFourInColumn(int[][] board, int symbol) {
-        int columns = board.length;
-        int rows = board[0].length;
-        for (int i = 0; i < columns; i++) {
-            int counter = 0;
-            for (int j = 0; j < rows && counter < 4; j++) {
-                if (board[i][j] == symbol) {
-                    counter++;
-                } else {
-                    counter = 0;
-                }
-            }
-            if (counter == 4) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasFourInRow(int[][] board, int symbol) {
-        int columns = board.length;
-        int rows = board[0].length;
-        for (int i = 0; i < rows; i++) {
-            int counter = 0;
-            for (int j = 0; j < columns && counter < 4; j++) {
-                if (board[j][i] == symbol) {
-                    counter++;
-                } else {
-                    counter = 0;
-                }
-            }
-            if (counter == 4) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasFourInDiagonal(int[][] board, int symbol) {
-        int columns = board.length;
-        int rows = board[0].length;
-
-        for (int i = 0; i <= columns - 4; i++) {
-            for (int j = 0; j <= rows - 4; j++) {
-                int[] cells = new int[]{board[i][j], board[i + 1][j + 1],
-                        board[i + 2][j + 2], board[i + 3][j + 3]};
-                if (equal(cells, symbol)) {
-                    return true;
-                }
-            }
-        }
-
-        for (int i = columns - 1; i >= 3; i--) {
-            for (int j = 0; j <= rows - 4; j++) {
-                int[] cells = new int[]{board[i][j], board[i - 1][j + 1],
-                        board[i - 2][j + 2], board[i - 3][j + 3]};
-                if (equal(cells, symbol)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private boolean equal(int[] array, int symbol) {
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] != symbol) {
-                return false;
-            }
-        }
-        return true;
     }
 }

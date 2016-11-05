@@ -1,9 +1,10 @@
 package ch.hslu.ai.connect4.players.k.multithreaded;
 
-import com.google.common.primitives.Ints;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Created by kevin_emgquz4 on 02.11.2016.
+ * Created by Kevin Boss on 02.11.2016.
  */
 public class Connect4GameState extends BaseNode {
     private final char mySymbol;
@@ -50,19 +51,28 @@ public class Connect4GameState extends BaseNode {
         }
     }
 
-    public int[] getBoardOneDimensional() {
-        return Ints.concat(board);
-    }
-
     public int getColumn() {
         return column;
     }
 
-    public int getRow() {
-        return row;
+
+    @Override
+    public int abstractHashCode() {
+        return new HashCodeBuilder(17, 31).
+                        append(board).
+                        toHashCode();
     }
 
-    public int getCacheHash() {
-        return java.util.Arrays.deepHashCode(board);
+    @Override
+    public boolean abstractEquals(BaseNode obj) {
+        if (!(obj instanceof Connect4GameState))
+            return false;
+        if (obj == this)
+            return true;
+
+        Connect4GameState rhs = (Connect4GameState) obj;
+        return new EqualsBuilder().
+                        append(board, rhs.board).
+                        isEquals();
     }
 }

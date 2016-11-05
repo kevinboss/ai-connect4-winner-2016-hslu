@@ -3,6 +3,8 @@ package ch.hslu.ai.connect4.players.k.multithreaded;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,14 +17,15 @@ import java.util.concurrent.*;
 abstract class GenericMiniMax<NodeT extends BaseNode> {
 
     private final int threadAmount;
-    ExecutorService executor = Executors.newCachedThreadPool();
+    ExecutorService executor;
 
     private final Cache<Integer, Integer> payoffCache = CacheBuilder.newBuilder()
-            .maximumSize(1000)
+            .maximumSize(1000000)
             .build();
 
     public GenericMiniMax(int threadAmount) {
         this.threadAmount = threadAmount;
+        this.executor = Executors.newCachedThreadPool();
     }
 
     protected abstract boolean isTerminalNode(final NodeT node);
@@ -32,29 +35,71 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
     protected abstract List<NodeT> getNodeChildren(final NodeT node, final boolean maximizingPlayer);
 
     private class Key {
-        private int boardHash;
+        private int boardIdentifier;
         private int depth;
 
-        private Key(int boardHash, int depth) {
-            this.boardHash = boardHash;
+        private Key(int boardIdentifier, int depth) {
+            this.boardIdentifier = boardIdentifier;
             this.depth = depth;
         }
 
-        public int getBoardHash() {
-            return boardHash * 100 + depth;
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 31).
+                    append(boardIdentifier).
+                    append(depth).
+                    toHashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof GenericMiniMax.Key))
+                return false;
+            if (obj == this)
+                return true;
+
+            Key rhs = (Key) obj;
+            return new EqualsBuilder().
+                    append(boardIdentifier, rhs.boardIdentifier).
+                    append(depth, rhs.depth).
+                    isEquals();
         }
     }
 
     public NodeT getBestMove(final NodeT node,
-                             final int depth) throws ExecutionException, InterruptedException {
+                             final int depth, boolean evaluatePossibleMovedIndependently) throws ExecutionException, InterruptedException {
         int bestMovePayoff = 0;
         NodeT chosenMove = null;
         final List<NodeT> possibleMoves = getNodeChildren(node, true);
-        for (NodeT possibleMove : possibleMoves) {
-            final int result = alphabetaCached(possibleMove, depth, null, null, false);
-            if (chosenMove == null || result > bestMovePayoff) {
-                bestMovePayoff = result;
-                chosenMove = possibleMove;
+
+        if (evaluatePossibleMovedIndependently) {
+            List<Future<MoveWithPayoff>> resultFutures = new ArrayList<Future<MoveWithPayoff>>(possibleMoves.size());
+            for (final NodeT possibleMove : possibleMoves) {
+                resultFutures.add(executor.submit(new Callable<MoveWithPayoff>() {
+                    public MoveWithPayoff call() throws Exception {
+                        final int result = alphabetaCached(possibleMove, depth, null, null, false);
+                        return new MoveWithPayoff(possibleMove, result);
+                    }
+                }));
+            }
+            List<MoveWithPayoff> results = new ArrayList<MoveWithPayoff>();
+            for (Future<MoveWithPayoff> resultFuture : resultFutures) {
+                results.add(resultFuture.get());
+            }
+
+            for (MoveWithPayoff result : results) {
+                if (chosenMove == null || result.getPayoff() > bestMovePayoff) {
+                    bestMovePayoff = result.getPayoff();
+                    chosenMove = result.getMove();
+                }
+            }
+        } else {
+            for (NodeT possibleMove : possibleMoves) {
+                final int result = alphabetaCached(possibleMove, depth, null, null, false);
+                if (chosenMove == null || result > bestMovePayoff) {
+                    bestMovePayoff = result;
+                    chosenMove = possibleMove;
+                }
             }
         }
         return chosenMove;
@@ -66,7 +111,7 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                                 final Integer alpha,
                                 final Integer beta,
                                 final boolean maximizingPlayer) throws ExecutionException, InterruptedException {
-        return payoffCache.get(new Key(node.getCacheHash(), depth).getBoardHash(), new Callable<Integer>() {
+        return payoffCache.get(new Key(node.hashCode(), depth).hashCode(), new Callable<Integer>() {
             public Integer call() throws Exception {
                 return alphabeta(node, depth, alpha, beta, maximizingPlayer);
             }
@@ -85,7 +130,7 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                 final List<NodeT> children = getNodeChildren(node, maximizingPlayer);
                 final List<List<NodeT>> childrenPartitions = Lists.partition(children, this.threadAmount);
                 for (List<NodeT> childrenPartition : childrenPartitions) {
-                    if (children.size() > 1) {
+                    if (childrenPartition.size() > 1) {
                         List<Future<Integer>> tmpFutures = new ArrayList<Future<Integer>>();
                         for (final NodeT child : childrenPartition) {
                             final Integer finalNestedAlpha = alpha;
@@ -102,8 +147,8 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                             candidates.add(tmpFuture.get());
                         }
                         alpha = Collections.max(candidates);
-                    } else if (children.size() > 0) {
-                        int tmp = alphabeta(children.get(0), depth - 1, alpha, beta, false);
+                    } else if (childrenPartition.size() > 0) {
+                        int tmp = alphabeta(childrenPartition.get(0), depth - 1, alpha, beta, false);
                         alpha = alpha == null ? tmp : Math.max(alpha, tmp);
                     }
                     if (beta != null && beta <= alpha) {
@@ -115,7 +160,7 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                 final List<NodeT> children = getNodeChildren(node, maximizingPlayer);
                 final List<List<NodeT>> childrenPartitions = Lists.partition(children, this.threadAmount);
                 for (List<NodeT> childrenPartition : childrenPartitions) {
-                    if (children.size() > 1) {
+                    if (childrenPartition.size() > 1) {
                         List<Future<Integer>> tmpFutures = new ArrayList<Future<Integer>>();
                         for (final NodeT child : childrenPartition) {
                             final Integer finalNestedAlpha = alpha;
@@ -132,8 +177,8 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                             candidates.add(tmpFuture.get());
                         }
                         beta = Collections.min(candidates);
-                    } else if (children.size() > 0) {
-                        int tmp = alphabeta(children.get(0), depth - 1, alpha, beta, true);
+                    } else if (childrenPartition.size() > 0) {
+                        int tmp = alphabeta(childrenPartition.get(0), depth - 1, alpha, beta, true);
                         beta = beta == null ? tmp : Math.min(beta, tmp);
                     }
                     if (alpha != null && beta <= alpha) {
@@ -142,6 +187,24 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                 }
                 return beta;
             }
+        }
+    }
+
+    private class MoveWithPayoff {
+        private NodeT move;
+        private int payoff;
+
+        private MoveWithPayoff(NodeT move, int payoff) {
+            this.move = move;
+            this.payoff = payoff;
+        }
+
+        public NodeT getMove() {
+            return move;
+        }
+
+        public int getPayoff() {
+            return payoff;
         }
     }
 }

@@ -1,18 +1,17 @@
-package ch.hslu.ai.connect4.players.k.multithreaded;
+package ch.hslu.ai.connect4.players.k.multithreaded.knowledgebase;
 
 import java.io.Serializable;
 
 /**
  * Created by Kevin Boss on 02.11.2016.
  */
-public abstract class BaseNode implements Serializable {
-    private static final long serialVersionUID = 3487495895819392L;
+public abstract class BaseTurn implements Serializable {
+    private static final long serialVersionUID = 3487495895819391L;
 
     @Override
     public final int hashCode() {
         return abstractHashCode();
     }
-
     public abstract int abstractHashCode();
 
     @Override
@@ -20,13 +19,13 @@ public abstract class BaseNode implements Serializable {
         if (other == this) {
             return true;
         }
-        if (other instanceof BaseNode) {
-            return abstractEquals((BaseNode) other);
+        if (other instanceof BaseTurn) {
+            return abstractEquals((BaseTurn)other);
         }
         return false;
     }
 
-    public abstract boolean abstractEquals(BaseNode other);
+    public abstract boolean abstractEquals(BaseTurn other);
 
 
 }
