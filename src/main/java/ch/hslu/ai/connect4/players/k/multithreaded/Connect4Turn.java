@@ -1,15 +1,15 @@
-package ch.hslu.ai.connect4.players.k.multithreaded.knowledgebase;
+package ch.hslu.ai.connect4.players.k.multithreaded;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Created by kevin_emgquz4 on 04.11.2016.
+ * Created by Kevin Boss on 04.11.2016.
  */
-public class Connect4KnowledgeBaseTurn extends BaseTurn {
+public class Connect4Turn extends BaseTurn {
     private final int column;
 
-    public Connect4KnowledgeBaseTurn(int column) {
+    public Connect4Turn(int column) {
         this.column = column;
     }
     public int abstractHashCode() {
@@ -19,12 +19,12 @@ public class Connect4KnowledgeBaseTurn extends BaseTurn {
     }
 
     public boolean abstractEquals(BaseTurn obj) {
-        if (!(obj instanceof Connect4KnowledgeBaseTurn))
+        if (!(obj instanceof Connect4Turn))
             return false;
         if (obj == this)
             return true;
 
-        Connect4KnowledgeBaseTurn rhs = (Connect4KnowledgeBaseTurn) obj;
+        Connect4Turn rhs = (Connect4Turn) obj;
         return new EqualsBuilder().
                 append(column, rhs.column).
                 isEquals();

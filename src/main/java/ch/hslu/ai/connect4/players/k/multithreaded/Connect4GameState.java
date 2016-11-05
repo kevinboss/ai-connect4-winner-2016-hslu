@@ -8,10 +8,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class Connect4GameState extends BaseNode {
     private final char mySymbol;
-
     private int[][] board;
-    private int column;
-    private int row;
 
     public int[][] getBoard() {
         return this.board;
@@ -22,18 +19,19 @@ public class Connect4GameState extends BaseNode {
     }
 
     public Connect4GameState setField(int column, int row, int value) {
-        this.column = column;
-        this.row = row;
+        this.setTurn(new Connect4Turn(column));
         this.board[column][row] = value;
         return this;
     }
 
     public Connect4GameState(int[][] board, char mySymbol) {
+        super(null);
         this.board = board;
         this.mySymbol = mySymbol;
     }
 
     public Connect4GameState(char[][] board, char mySymbol) {
+        super(null);
         this.board = new int[board.length][board[0].length];
         this.mySymbol = mySymbol;
 
@@ -51,16 +49,11 @@ public class Connect4GameState extends BaseNode {
         }
     }
 
-    public int getColumn() {
-        return column;
-    }
-
-
     @Override
     public int abstractHashCode() {
         return new HashCodeBuilder(17, 31).
-                        append(board).
-                        toHashCode();
+                append(board).
+                toHashCode();
     }
 
     @Override
@@ -72,7 +65,7 @@ public class Connect4GameState extends BaseNode {
 
         Connect4GameState rhs = (Connect4GameState) obj;
         return new EqualsBuilder().
-                        append(board, rhs.board).
-                        isEquals();
+                append(board, rhs.board).
+                isEquals();
     }
 }

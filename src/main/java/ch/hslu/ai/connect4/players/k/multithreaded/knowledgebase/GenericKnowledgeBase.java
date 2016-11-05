@@ -1,6 +1,7 @@
 package ch.hslu.ai.connect4.players.k.multithreaded.knowledgebase;
 
 import ch.hslu.ai.connect4.players.k.multithreaded.BaseNode;
+import ch.hslu.ai.connect4.players.k.multithreaded.BaseTurn;
 
 import java.io.*;
 import java.util.*;
@@ -31,9 +32,7 @@ public abstract class GenericKnowledgeBase<NodeT extends BaseNode, TurnT extends
             out.close();
             fileOut.close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException i) {
-            i.printStackTrace();
         }
     }
 
@@ -46,9 +45,9 @@ public abstract class GenericKnowledgeBase<NodeT extends BaseNode, TurnT extends
             in.close();
             fileIn.close();
         } catch (IOException i) {
-            i.printStackTrace();
+            System.out.println("No kb file existing.");
         } catch (ClassNotFoundException c) {
-            c.printStackTrace();
+            System.out.println("Problem loading kb file.");
         }
         if (e != null) {
             this.knowledgeEntries = e;

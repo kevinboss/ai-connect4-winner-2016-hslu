@@ -1,4 +1,7 @@
-package ch.hslu.ai.connect4.players.k.multithreaded;
+package ch.hslu.ai.connect4.players.k.multithreaded.minimax;
+
+import ch.hslu.ai.connect4.players.k.multithreaded.Connect4GameState;
+import ch.hslu.ai.connect4.players.k.multithreaded.Connect4GameStateEvaluator;
 
 import java.util.ArrayList;
 import java.util.List;

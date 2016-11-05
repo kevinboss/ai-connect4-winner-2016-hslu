@@ -1,5 +1,6 @@
-package ch.hslu.ai.connect4.players.k.multithreaded;
+package ch.hslu.ai.connect4.players.k.multithreaded.minimax;
 
+import ch.hslu.ai.connect4.players.k.multithreaded.BaseNode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;

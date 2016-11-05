@@ -1,6 +1,7 @@
 package ch.hslu.ai.connect4.players.k.multithreaded.knowledgebase;
 
 import ch.hslu.ai.connect4.players.k.multithreaded.BaseNode;
+import ch.hslu.ai.connect4.players.k.multithreaded.BaseTurn;
 
 import java.io.Serializable;
 import java.util.ArrayList;
