@@ -1,7 +1,7 @@
-package ch.hslu.ai.connect4.players.k.multithreaded.knowledgebase;
+package ch.hslu.ai.connect4.players.k.knowledgebase;
 
-import ch.hslu.ai.connect4.players.k.multithreaded.common.BaseNode;
-import ch.hslu.ai.connect4.players.k.multithreaded.common.BaseTurn;
+import ch.hslu.ai.connect4.players.k.common.BaseNode;
+import ch.hslu.ai.connect4.players.k.common.BaseTurn;
 
 import java.io.*;
 import java.util.*;
@@ -31,6 +31,7 @@ public abstract class GenericKnowledgeBase<NodeT extends BaseNode, TurnT extends
             out.writeObject(this.knowledgeEntries);
             out.close();
             fileOut.close();
+            //System.out.println("Saved kb file.");
         } catch (FileNotFoundException e) {
         } catch (IOException i) {
         }

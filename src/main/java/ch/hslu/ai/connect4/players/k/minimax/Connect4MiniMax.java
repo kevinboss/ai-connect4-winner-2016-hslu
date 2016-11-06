@@ -1,8 +1,8 @@
-package ch.hslu.ai.connect4.players.k.multithreaded.minimax;
+package ch.hslu.ai.connect4.players.k.minimax;
 
-import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4GameState;
-import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4GameStateEvaluator;
-import ch.hslu.ai.connect4.players.k.multithreaded.heuristic.GenericHeuristicCalculator;
+import ch.hslu.ai.connect4.players.k.common.Connect4GameStateEvaluator;
+import ch.hslu.ai.connect4.players.k.common.Connect4GameState;
+import ch.hslu.ai.connect4.players.k.heuristic.GenericHeuristicCalculator;
 
 import java.util.ArrayList;
 import java.util.List;

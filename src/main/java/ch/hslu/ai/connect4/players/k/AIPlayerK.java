@@ -1,11 +1,11 @@
-package ch.hslu.ai.connect4.players.k.multithreaded;
+package ch.hslu.ai.connect4.players.k;
 
 import ch.hslu.ai.connect4.Player;
-import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4GameState;
-import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4Turn;
-import ch.hslu.ai.connect4.players.k.multithreaded.heuristic.Connect4HeuristicCalculator;
-import ch.hslu.ai.connect4.players.k.multithreaded.knowledgebase.Connect4KnowledgeBase;
-import ch.hslu.ai.connect4.players.k.multithreaded.minimax.Connect4MiniMax;
+import ch.hslu.ai.connect4.players.k.common.Connect4Turn;
+import ch.hslu.ai.connect4.players.k.heuristic.Connect4HeuristicCalculator;
+import ch.hslu.ai.connect4.players.k.minimax.Connect4MiniMax;
+import ch.hslu.ai.connect4.players.k.common.Connect4GameState;
+import ch.hslu.ai.connect4.players.k.knowledgebase.Connect4KnowledgeBase;
 
 /**
  * Created by Kevin Boss on 02.11.2016.
@@ -14,7 +14,7 @@ public class AIPlayerK extends Player {
     private final Connect4MiniMax connect4MiniMax;
     private final boolean learningMode;
     private final Connect4KnowledgeBase connect4KnowledgeBase;
-    private final String filename = "knowledgebase.con4";
+    private final String filename = "knowledgebase.con4kb";
 
     public AIPlayerK(String name) {
         super(name);
@@ -33,7 +33,11 @@ public class AIPlayerK extends Player {
             if (kbTurn != null) {
                 bestMove = kbTurn.getColumn();
             } else {
-                final Connect4GameState bestMoveNode = this.connect4MiniMax.getBestMove(connect4GameState, 5, true);
+                int depth = 5;
+                if (this.learningMode) {
+                    depth = 10;
+                }
+                final Connect4GameState bestMoveNode = this.connect4MiniMax.getBestMove(connect4GameState, depth, true);
                 bestMove = ((Connect4Turn) bestMoveNode.getTurn()).getColumn();
                 if (this.learningMode) {
                     this.connect4KnowledgeBase.explainTurn(

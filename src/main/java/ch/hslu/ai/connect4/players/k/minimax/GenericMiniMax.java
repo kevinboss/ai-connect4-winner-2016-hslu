@@ -1,7 +1,7 @@
-package ch.hslu.ai.connect4.players.k.multithreaded.minimax;
+package ch.hslu.ai.connect4.players.k.minimax;
 
-import ch.hslu.ai.connect4.players.k.multithreaded.common.BaseNode;
-import ch.hslu.ai.connect4.players.k.multithreaded.heuristic.GenericHeuristicCalculator;
+import ch.hslu.ai.connect4.players.k.common.BaseNode;
+import ch.hslu.ai.connect4.players.k.heuristic.GenericHeuristicCalculator;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;

@@ -1,7 +1,7 @@
-package ch.hslu.ai.connect4.players.k.multithreaded.heuristic;
+package ch.hslu.ai.connect4.players.k.heuristic;
 
-import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4GameState;
-import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4GameStateEvaluator;
+import ch.hslu.ai.connect4.players.k.common.Connect4GameState;
+import ch.hslu.ai.connect4.players.k.common.Connect4GameStateEvaluator;
 
 /**
  * Created by Kevin Boss on 05.11.2016.

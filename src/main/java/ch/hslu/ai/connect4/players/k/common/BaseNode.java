@@ -1,4 +1,4 @@
-package ch.hslu.ai.connect4.players.k.multithreaded.common;
+package ch.hslu.ai.connect4.players.k.common;
 
 import java.io.Serializable;
 

@@ -1,7 +1,7 @@
-package ch.hslu.ai.connect4.players.k.multithreaded.knowledgebase;
+package ch.hslu.ai.connect4.players.k.knowledgebase;
 
-import ch.hslu.ai.connect4.players.k.multithreaded.common.BaseNode;
-import ch.hslu.ai.connect4.players.k.multithreaded.common.BaseTurn;
+import ch.hslu.ai.connect4.players.k.common.BaseNode;
+import ch.hslu.ai.connect4.players.k.common.BaseTurn;
 
 import java.io.Serializable;
 import java.util.ArrayList;
