@@ -78,10 +78,10 @@ public class Connect4GameStateEvaluator {
         return false;
     }
 
-    private List<Field> countXFieldsInColumn(int[][] board, int symbol, int xInAColumn, boolean returnOnFirst) {
+    private List<List<Field>> countXFieldsInColumn(int[][] board, int symbol, int xInAColumn, boolean returnOnFirst) {
         int columns = board.length;
         int rows = board[0].length;
-        List<Field> inAColumn = new ArrayList<Field>();
+        List<List<Field>> inAColumn = new ArrayList<List<Field>>();
         for (int i = 0; i < columns; i++) {
             int counter = 0;
             List<Field> potentialGroup = new ArrayList<Field>();
@@ -94,7 +94,7 @@ public class Connect4GameStateEvaluator {
                 }
             }
             if (counter == xInAColumn) {
-                inAColumn.addAll(potentialGroup);
+                inAColumn.add(potentialGroup);
                 if (returnOnFirst) {
                     return inAColumn;
                 }
@@ -103,10 +103,10 @@ public class Connect4GameStateEvaluator {
         return inAColumn;
     }
 
-    private List<Field> countXFieldsInRow(int[][] board, int symbol, int xInARow, boolean returnOnFirst) {
+    private List<List<Field>> countXFieldsInRow(int[][] board, int symbol, int xInARow, boolean returnOnFirst) {
         int columns = board.length;
         int rows = board[0].length;
-        List<Field> inARow = new ArrayList<Field>();
+        List<List<Field>> inARow = new ArrayList<List<Field>>();
         for (int i = 0; i < rows; i++) {
             int counter = 0;
             List<Field> potentialGroup = new ArrayList<Field>();
@@ -119,7 +119,7 @@ public class Connect4GameStateEvaluator {
                 }
             }
             if (counter == xInARow) {
-                inARow.addAll(potentialGroup);
+                inARow.add(potentialGroup);
                 if (returnOnFirst) {
                     return inARow;
                 }
@@ -128,10 +128,10 @@ public class Connect4GameStateEvaluator {
         return inARow;
     }
 
-    private List<Field> countXFieldsInDiagonal(int[][] board, int symbol, int xInARow, boolean returnOnFirst) {
+    private List<List<Field>> countXFieldsInDiagonal(int[][] board, int symbol, int xInARow, boolean returnOnFirst) {
         int columns = board.length;
         int rows = board[0].length;
-        List<Field> inADiagonal = new ArrayList<Field>();
+        List<List<Field>> inADiagonal = new ArrayList<List<Field>>();
         for (int i = 0; i <= columns - xInARow; i++) {
             for (int j = 0; j <= rows - xInARow; j++) {
                 int[] cells = new int[xInARow];
@@ -141,7 +141,7 @@ public class Connect4GameStateEvaluator {
                     potentialGroup.add(new Field(i + c, j + c));
                 }
                 if (equal(cells, symbol)) {
-                    inADiagonal.addAll(potentialGroup);
+                    inADiagonal.add(potentialGroup);
                     if (returnOnFirst) {
                         return inADiagonal;
                     }
@@ -158,25 +158,24 @@ public class Connect4GameStateEvaluator {
                     potentialGroup.add(new Field(i + c, j + c));
                 }
                 if (equal(cells, symbol)) {
-                    inADiagonal.addAll(potentialGroup);
+                    inADiagonal.add(potentialGroup);
                     if (returnOnFirst) {
                         return inADiagonal;
                     }
                 }
             }
         }
-
         return inADiagonal;
     }
 
-    public List<Field> countFields(int[][] board, int symbol) {
+    public int countFields(int[][] board, int symbol) {
         int columns = board.length;
         int rows = board[0].length;
-        List<Field> inASingle = new ArrayList<Field>();
+        int inASingle = 0;
         for (int i = 0; i < columns; i++) {
             for (int j = 0; j < rows; i++) {
                 if (board[i][j] == symbol) {
-                    inASingle.add(new Field(i, j));
+                    inASingle++;
                 }
             }
         }
@@ -192,7 +191,31 @@ public class Connect4GameStateEvaluator {
         return true;
     }
 
-    private class Field {
+    public List<List<Field>> count2InRow(Connect4GameState node, int i) {
+        return countXFieldsInRow(node.getBoard(), i, 2, false);
+    }
+
+    public List<List<Field>> count3InRow(Connect4GameState node, int i) {
+        return countXFieldsInRow(node.getBoard(), i, 3, false);
+    }
+
+    public List<List<Field>> count2InColumn(Connect4GameState node, int i) {
+        return countXFieldsInColumn(node.getBoard(), i, 2, false);
+    }
+
+    public List<List<Field>> count3InColumn(Connect4GameState node, int i) {
+        return countXFieldsInColumn(node.getBoard(), i, 3, false);
+    }
+
+    public List<List<Field>> count2InDiagonal(Connect4GameState node, int i) {
+        return countXFieldsInDiagonal(node.getBoard(), i, 2, false);
+    }
+
+    public List<List<Field>> count3InDiagonal(Connect4GameState node, int i) {
+        return countXFieldsInDiagonal(node.getBoard(), i, 3, false);
+    }
+
+    public class Field {
         private final int x;
         private final int y;
 
