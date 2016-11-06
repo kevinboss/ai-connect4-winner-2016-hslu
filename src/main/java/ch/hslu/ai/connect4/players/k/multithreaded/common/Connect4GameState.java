@@ -1,4 +1,4 @@
-package ch.hslu.ai.connect4.players.k.multithreaded;
+package ch.hslu.ai.connect4.players.k.multithreaded.common;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

@@ -1,8 +1,8 @@
 package ch.hslu.ai.connect4.players.k.multithreaded.knowledgebase;
 
-import ch.hslu.ai.connect4.players.k.multithreaded.Connect4GameState;
-import ch.hslu.ai.connect4.players.k.multithreaded.Connect4GameStateEvaluator;
-import ch.hslu.ai.connect4.players.k.multithreaded.Connect4Turn;
+import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4GameState;
+import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4GameStateEvaluator;
+import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4Turn;
 
 /**
  * Created by Kevin Boss on 04.11.2016.

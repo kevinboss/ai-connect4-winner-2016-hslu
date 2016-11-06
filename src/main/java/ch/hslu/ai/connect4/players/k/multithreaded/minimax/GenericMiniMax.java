@@ -1,6 +1,7 @@
 package ch.hslu.ai.connect4.players.k.multithreaded.minimax;
 
-import ch.hslu.ai.connect4.players.k.multithreaded.BaseNode;
+import ch.hslu.ai.connect4.players.k.multithreaded.common.BaseNode;
+import ch.hslu.ai.connect4.players.k.multithreaded.heuristic.GenericHeuristicCalculator;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
@@ -18,20 +19,20 @@ import java.util.concurrent.*;
 abstract class GenericMiniMax<NodeT extends BaseNode> {
 
     private final int threadAmount;
+    private final GenericHeuristicCalculator<NodeT>  heuristicCalculator;
     ExecutorService executor;
 
     private final Cache<Integer, Integer> payoffCache = CacheBuilder.newBuilder()
             .maximumSize(1000000)
             .build();
 
-    public GenericMiniMax(int threadAmount) {
+    public GenericMiniMax(int threadAmount, GenericHeuristicCalculator<NodeT> heuristicCalculator) {
         this.threadAmount = threadAmount;
+        this.heuristicCalculator = heuristicCalculator;
         this.executor = Executors.newCachedThreadPool();
     }
 
     protected abstract boolean isTerminalNode(final NodeT node);
-
-    protected abstract int getHeuristicNodeValue(final NodeT node);
 
     protected abstract List<NodeT> getNodeChildren(final NodeT node, final boolean maximizingPlayer);
 
@@ -125,7 +126,7 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                           Integer beta,
                           final boolean maximizingPlayer) throws ExecutionException, InterruptedException {
         if (depth == 0 || isTerminalNode(node)) {
-            return getHeuristicNodeValue(node);
+            return this.heuristicCalculator.getNodePayoff(node);
         } else {
             if (maximizingPlayer) {
                 final List<NodeT> children = getNodeChildren(node, maximizingPlayer);

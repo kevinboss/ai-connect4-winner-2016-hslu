@@ -1,6 +1,9 @@
 package ch.hslu.ai.connect4.players.k.multithreaded;
 
 import ch.hslu.ai.connect4.Player;
+import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4GameState;
+import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4Turn;
+import ch.hslu.ai.connect4.players.k.multithreaded.heuristic.Connect4HeuristicCalculator;
 import ch.hslu.ai.connect4.players.k.multithreaded.knowledgebase.Connect4KnowledgeBase;
 import ch.hslu.ai.connect4.players.k.multithreaded.minimax.Connect4MiniMax;
 
@@ -15,7 +18,7 @@ public class AIPlayerK extends Player {
 
     public AIPlayerK(String name) {
         super(name);
-        this.connect4MiniMax = new Connect4MiniMax(1);
+        this.connect4MiniMax = new Connect4MiniMax(1, new Connect4HeuristicCalculator());
         this.connect4KnowledgeBase = new Connect4KnowledgeBase(999999);
         this.connect4KnowledgeBase.deSerialize(this.filename);
         this.learningMode = false;

@@ -1,7 +1,8 @@
 package ch.hslu.ai.connect4.players.k.multithreaded.minimax;
 
-import ch.hslu.ai.connect4.players.k.multithreaded.Connect4GameState;
-import ch.hslu.ai.connect4.players.k.multithreaded.Connect4GameStateEvaluator;
+import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4GameState;
+import ch.hslu.ai.connect4.players.k.multithreaded.common.Connect4GameStateEvaluator;
+import ch.hslu.ai.connect4.players.k.multithreaded.heuristic.GenericHeuristicCalculator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,21 +13,13 @@ import java.util.List;
 public class Connect4MiniMax extends GenericMiniMax<Connect4GameState> {
     private Connect4GameStateEvaluator connect4GameStateEvaluator = new Connect4GameStateEvaluator();
 
-    public Connect4MiniMax(int threadAmount) {
-        super(threadAmount);
+    public Connect4MiniMax(int threadAmount, GenericHeuristicCalculator<Connect4GameState> heuristicCalculator) {
+        super(threadAmount, heuristicCalculator);
     }
 
     protected boolean isTerminalNode(Connect4GameState node) {
         return this.connect4GameStateEvaluator.isGameDrawn(node)
                 || this.connect4GameStateEvaluator.didAnyoneWin(node);
-    }
-
-    protected int getHeuristicNodeValue(Connect4GameState node) {
-        if (this.connect4GameStateEvaluator.didOpponentWin(node))
-            return -1;
-        if (this.connect4GameStateEvaluator.didIWin(node))
-            return 1;
-        return 0;
     }
 
     private int[][] copyOf(int[][] oldArray) {
