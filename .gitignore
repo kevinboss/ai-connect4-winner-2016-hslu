@@ -13,3 +13,8 @@
 hs_err_pid*
 
 !connect4.jar
+
+.idea/workspace.xml
+src/main/resources/
+src/test/
+target/
