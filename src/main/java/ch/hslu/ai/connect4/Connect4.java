@@ -30,11 +30,12 @@ public class Connect4 {
 
     public static void main(String[] args) {
 
+        final AIPlayerK kevin = new AIPlayerK("Kevin", true);
         // Create players:
         Player[] players = {
                 //new FirstRowPlayer("FR"),
                 new RandomPlayer("Random"),
-                new AIPlayerK("Kevin"),
+                kevin,
                 //new FirstColumnPlayer("FirstColumn"),
         };
 
@@ -44,6 +45,7 @@ public class Connect4 {
         // Start a tournament with many rounds:
         long startTime = System.currentTimeMillis();
         tournamentMode(players, 1000);
+        kevin.saveWhatYouKnow();
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         System.out.println(elapsedTime);
@@ -117,7 +119,7 @@ public class Connect4 {
         System.out.println("***********************************************");
         System.out.println("* Final Ranking ...");
         System.out.println("***********************************************\n");
-		
+
 		/*
 		 * Produce Ranking:
 		 */

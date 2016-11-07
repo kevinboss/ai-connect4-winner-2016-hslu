@@ -1,6 +1,7 @@
 package ch.hslu.ai.connect4.players.k;
 
 import ch.hslu.ai.connect4.Player;
+import ch.hslu.ai.connect4.players.k.common.Connect4GameStateHelper;
 import ch.hslu.ai.connect4.players.k.common.Connect4Turn;
 import ch.hslu.ai.connect4.players.k.heuristic.Connect4HeuristicCalculator;
 import ch.hslu.ai.connect4.players.k.minimax.Connect4MiniMax;
@@ -17,11 +18,15 @@ public class AIPlayerK extends Player {
     private final String filename = "knowledgebase.con4kb";
 
     public AIPlayerK(String name) {
+        this(name, false);
+    }
+
+    public AIPlayerK(String name, boolean learningMode) {
         super(name);
         this.connect4MiniMax = new Connect4MiniMax(1, new Connect4HeuristicCalculator());
         this.connect4KnowledgeBase = new Connect4KnowledgeBase(999999);
         this.connect4KnowledgeBase.deSerialize(this.filename);
-        this.learningMode = false;
+        this.learningMode = learningMode;
     }
 
     @Override
@@ -35,22 +40,31 @@ public class AIPlayerK extends Player {
             } else {
                 int depth = 5;
                 if (this.learningMode) {
-                    depth = 10;
+                    depth = 8;
                 }
                 final Connect4GameState bestMoveNode = this.connect4MiniMax.getBestMove(connect4GameState, depth, true);
                 bestMove = ((Connect4Turn) bestMoveNode.getTurn()).getColumn();
-                if (this.learningMode) {
+            }
+            if (this.learningMode) {
+                final Connect4GameState connect4GameStateAfterBestMove
+                        = Connect4GameStateHelper.placeInColumn(connect4GameState, 1, bestMove);
+                if (connect4GameStateAfterBestMove != null) {
                     this.connect4KnowledgeBase.explainTurn(
                             connect4GameState,
                             new Connect4Turn(bestMove),
-                            bestMoveNode
+                            connect4GameStateAfterBestMove
                     );
-                    this.connect4KnowledgeBase.serialize(this.filename);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return bestMove;
+    }
+
+    public void saveWhatYouKnow() {
+        if (this.learningMode) {
+            this.connect4KnowledgeBase.serialize(this.filename);
+        }
     }
 }
