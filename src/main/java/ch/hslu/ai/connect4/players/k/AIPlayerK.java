@@ -15,7 +15,7 @@ public class AIPlayerK extends Player {
     private final Connect4MiniMax connect4MiniMax;
     private final boolean learningMode;
     private final Connect4KnowledgeBase connect4KnowledgeBase;
-    private final String filename = "knowledgebase.con4kb";
+    private final String filename = "617861577_knowledge_base.con4kb";
 
     public AIPlayerK(String name) {
         this(name, false);
@@ -38,28 +38,36 @@ public class AIPlayerK extends Player {
             if (kbTurn != null) {
                 bestMove = kbTurn.getColumn();
             } else {
-                int depth = 5;
-                if (this.learningMode) {
-                    depth = 8;
-                }
-                final Connect4GameState bestMoveNode = this.connect4MiniMax.getBestMove(connect4GameState, depth, true);
-                bestMove = ((Connect4Turn) bestMoveNode.getTurn()).getColumn();
+                bestMove = getBestMove(connect4GameState);
             }
             if (this.learningMode) {
-                final Connect4GameState connect4GameStateAfterBestMove
-                        = Connect4GameStateHelper.placeInColumn(connect4GameState, 1, bestMove);
-                if (connect4GameStateAfterBestMove != null) {
-                    this.connect4KnowledgeBase.explainTurn(
-                            connect4GameState,
-                            new Connect4Turn(bestMove),
-                            connect4GameStateAfterBestMove
-                    );
-                }
+                explainTurn(bestMove, connect4GameState);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return bestMove;
+    }
+
+    private void explainTurn(int bestMove, Connect4GameState connect4GameState) {
+        final Connect4GameState connect4GameStateAfterBestMove
+                = Connect4GameStateHelper.placeInColumn(connect4GameState, 1, bestMove);
+        if (connect4GameStateAfterBestMove != null) {
+            this.connect4KnowledgeBase.explainTurn(
+                    connect4GameState,
+                    new Connect4Turn(bestMove),
+                    connect4GameStateAfterBestMove
+            );
+        }
+    }
+
+    private int getBestMove(Connect4GameState connect4GameState) throws java.util.concurrent.ExecutionException, InterruptedException {
+        int depth = 5;
+        if (this.learningMode) {
+            depth = 8;
+        }
+        final Connect4GameState bestMoveNode = this.connect4MiniMax.getBestMove(connect4GameState, depth, true);
+        return ((Connect4Turn) bestMoveNode.getTurn()).getColumn();
     }
 
     public void saveWhatYouKnow() {

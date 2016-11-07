@@ -136,7 +136,7 @@ public class Connect4GameStateEvaluator {
             for (int j = 0; j <= rows - xInARow; j++) {
                 int[] cells = new int[xInARow];
                 List<Field> potentialGroup = new ArrayList<Field>();
-                for (int c = 0; c < 4; c++) {
+                for (int c = 0; c < xInARow; c++) {
                     cells[c] = board[i + c][j + c];
                     potentialGroup.add(new Field(i + c, j + c));
                 }
@@ -153,7 +153,7 @@ public class Connect4GameStateEvaluator {
             for (int j = 0; j <= rows - xInARow; j++) {
                 int[] cells = new int[xInARow];
                 List<Field> potentialGroup = new ArrayList<Field>();
-                for (int c = 0; c < 4; c++) {
+                for (int c = 0; c < xInARow; c++) {
                     cells[c] = board[i - c][j + c];
                     potentialGroup.add(new Field(i + c, j + c));
                 }
@@ -173,7 +173,7 @@ public class Connect4GameStateEvaluator {
         int rows = board[0].length;
         int inASingle = 0;
         for (int i = 0; i < columns; i++) {
-            for (int j = 0; j < rows; i++) {
+            for (int j = 0; j < rows; j++) {
                 if (board[i][j] == symbol) {
                     inASingle++;
                 }
