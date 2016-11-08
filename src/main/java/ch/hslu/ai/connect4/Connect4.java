@@ -30,7 +30,7 @@ public class Connect4 {
 
     public static void main(String[] args) {
 
-        final AIPlayerK kevin = new AIPlayerK("Kevin", true, 5);
+        final AIPlayerK kevin = new AIPlayerK("Kevin", true, 8);
         // Create players:
         Player[] players = {
                 //new FirstRowPlayer("FR"),
@@ -44,7 +44,7 @@ public class Connect4 {
 
         // Start a tournament with many rounds:
         long startTime = System.currentTimeMillis();
-        tournamentMode(players, 1);
+        tournamentMode(players, 1000);
         kevin.saveWhatYouKnow();
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
