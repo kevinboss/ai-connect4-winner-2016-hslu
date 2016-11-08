@@ -4,7 +4,10 @@ import ch.hslu.ai.connect4.players.k.common.BaseNode;
 import ch.hslu.ai.connect4.players.k.common.BaseTurn;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Kevin Boss on 03.11.2016.
@@ -12,11 +15,11 @@ import java.util.*;
 public abstract class GenericKnowledgeBase<NodeT extends BaseNode, TurnT extends BaseTurn> {
     private final int knowledgeEntriesToKeep;
     private Match runningMatch = new Match();
-    private List<KnowledgeEntry> knowledgeEntries;
+    private Map<Integer, List<KnowledgeEntry>> knowledgeEntries;
 
     public GenericKnowledgeBase(int knowledgeEntriesToKeep) {
         this.knowledgeEntriesToKeep = knowledgeEntriesToKeep;
-        this.knowledgeEntries = new ArrayList<KnowledgeEntry>();
+        this.knowledgeEntries = new HashMap<Integer, List<KnowledgeEntry>>();
     }
 
     public abstract boolean isInitialStateForMe(NodeT node);
@@ -31,18 +34,17 @@ public abstract class GenericKnowledgeBase<NodeT extends BaseNode, TurnT extends
             out.writeObject(this.knowledgeEntries);
             out.close();
             fileOut.close();
-            //System.out.println("Saved kb file.");
         } catch (FileNotFoundException e) {
         } catch (IOException i) {
         }
     }
 
     public void deSerialize(String filepath) {
-        List<KnowledgeEntry> e = null;
+        Map<Integer, List<KnowledgeEntry>> e = null;
         try {
             FileInputStream fileIn = new FileInputStream(filepath);
             ObjectInputStream in = new ObjectInputStream(fileIn);
-            e = (List<KnowledgeEntry>) in.readObject();
+            e = (Map<Integer, List<KnowledgeEntry>>) in.readObject();
             in.close();
             fileIn.close();
         } catch (IOException i) {
@@ -58,8 +60,9 @@ public abstract class GenericKnowledgeBase<NodeT extends BaseNode, TurnT extends
     public TurnT getKbTurn(NodeT node) {
         TurnT bestTurn = null;
         int bestTurnValue = 0;
-        for (KnowledgeEntry knowledgeEntry : this.knowledgeEntries) {
-            if (knowledgeEntry.getNode().hashCode() == node.hashCode()) {
+        final List<KnowledgeEntry> knowledgeEntries = this.knowledgeEntries.get(node.hashCode());
+        if (knowledgeEntries != null) {
+            for (KnowledgeEntry knowledgeEntry : knowledgeEntries) {
                 if (knowledgeEntry.getValue() > bestTurnValue) {
                     bestTurn = (TurnT) knowledgeEntry.getTurn();
                     bestTurnValue = knowledgeEntry.getValue();
@@ -81,14 +84,19 @@ public abstract class GenericKnowledgeBase<NodeT extends BaseNode, TurnT extends
         }
     }
 
-    private void addKnowledgeEntries(NodeT nodeAfterTurn) {
+    private void addKnowledgeEntries(NodeT finalNode) {
         for (Map.Entry<NodeT, TurnT> turnEntry : this.runningMatch.getTurns().entrySet()) {
             boolean turnExistedAlready = false;
-            for (KnowledgeEntry knowledgeEntry : this.knowledgeEntries) {
-                if (knowledgeEntry.getNode().hashCode() == turnEntry.getKey().hashCode()
-                        && knowledgeEntry.getTurn().hashCode() == turnEntry.getValue().hashCode()) {
-                    if (!knowledgeEntry.hasFinalNode(nodeAfterTurn)) {
-                        knowledgeEntry.addFinalNode(nodeAfterTurn);
+            final int code = turnEntry.getKey().hashCode();
+            List<KnowledgeEntry> knowledgeEntries = this.knowledgeEntries.get(code);
+            if (knowledgeEntries == null) {
+                knowledgeEntries = new ArrayList<KnowledgeEntry>();
+                this.knowledgeEntries.put(code, knowledgeEntries);
+            }
+            for (KnowledgeEntry knowledgeEntry : knowledgeEntries) {
+                if (knowledgeEntry.getTurn().hashCode() == turnEntry.getValue().hashCode()) {
+                    if (!knowledgeEntry.hasFinalNode(finalNode)) {
+                        knowledgeEntry.addFinalNode(finalNode);
                     }
                     turnExistedAlready = true;
                 }
@@ -97,20 +105,13 @@ public abstract class GenericKnowledgeBase<NodeT extends BaseNode, TurnT extends
                 knowledgeEntries.add(new KnowledgeEntry(
                         turnEntry.getKey(),
                         turnEntry.getValue(),
-                        nodeAfterTurn));
+                        finalNode));
             }
         }
     }
 
     private void cleanUpKnowledgeEntries() {
-        Collections.sort(this.knowledgeEntries, new Comparator<KnowledgeEntry>() {
-            public int compare(KnowledgeEntry o1, KnowledgeEntry o2) {
-                return o1.getValue() - o2.getValue();
-            }
-        });
-        if (this.knowledgeEntries.size() > this.knowledgeEntriesToKeep + 1) {
-            this.knowledgeEntries = new ArrayList<KnowledgeEntry>(this.knowledgeEntries.subList(0, this.knowledgeEntriesToKeep));
-        }
+        //TODO: If this becomes really necessary clean up by removing Knowledge Entries with the lowest value
     }
 
     private class Match {

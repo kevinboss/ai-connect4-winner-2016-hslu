@@ -16,13 +16,15 @@ public class AIPlayerK extends Player {
     private final boolean learningMode;
     private final Connect4KnowledgeBase connect4KnowledgeBase;
     private final String filename = "617861577_knowledge_base.con4kb";
+    private final int learningDepth;
 
     public AIPlayerK(String name) {
-        this(name, false);
+        this(name, false, 5);
     }
 
-    public AIPlayerK(String name, boolean learningMode) {
+    public AIPlayerK(String name, boolean learningMode, int learningDepth) {
         super(name);
+        this.learningDepth = learningDepth;
         this.connect4MiniMax = new Connect4MiniMax(1, new Connect4HeuristicCalculator());
         this.connect4KnowledgeBase = new Connect4KnowledgeBase(999999);
         this.connect4KnowledgeBase.deSerialize(this.filename);
@@ -64,7 +66,7 @@ public class AIPlayerK extends Player {
     private int getBestMove(Connect4GameState connect4GameState) throws java.util.concurrent.ExecutionException, InterruptedException {
         int depth = 5;
         if (this.learningMode) {
-            depth = 8;
+            depth = this.learningDepth;
         }
         final Connect4GameState bestMoveNode = this.connect4MiniMax.getBestMove(connect4GameState, depth, true);
         return ((Connect4Turn) bestMoveNode.getTurn()).getColumn();
