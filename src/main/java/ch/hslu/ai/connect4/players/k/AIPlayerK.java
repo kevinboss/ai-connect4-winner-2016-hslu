@@ -35,9 +35,12 @@ public class AIPlayerK extends Player {
     public int play(char[][] board) {
         int bestMove = 0;
         try {
+            Connect4Turn kbTurn = null;
             final Connect4GameState connect4GameState = new Connect4GameState(board, this.getSymbol());
-            final Connect4Turn kbTurn = this.connect4KnowledgeBase.getKbTurn(connect4GameState);
-            if (kbTurn != null) {
+            if (!this.learningMode) {
+                kbTurn = this.connect4KnowledgeBase.getKbTurn(connect4GameState);
+            }
+            if (!this.learningMode && kbTurn != null) {
                 bestMove = kbTurn.getColumn();
             } else {
                 bestMove = getBestMove(connect4GameState);
