@@ -30,26 +30,29 @@ public class Connect4 {
 
     public static void main(String[] args) {
 
-        final AIPlayerK kevin = new AIPlayerK("Kevin", true, 8);
+        final AIPlayerK kevin = new AIPlayerK("Kevin", false, 8);
+        //final AIPlayerK hans = new AIPlayerK("Hans", false, 8);
         // Create players:
         Player[] players = {
                 //new FirstRowPlayer("FR"),
                 new RandomPlayer("Random"),
                 kevin,
+                //hans,
                 //new FirstColumnPlayer("FirstColumn"),
         };
 
-        // Start a single game with GUI:
-        //singleGameMode(players[0], players[1]);
-
-        // Start a tournament with many rounds:
-        long startTime = System.currentTimeMillis();
-        tournamentMode(players, 1000);
-        kevin.saveWhatYouKnow();
-        long stopTime = System.currentTimeMillis();
-        long elapsedTime = stopTime - startTime;
-        System.out.println(elapsedTime);
-
+        if (false) {
+            for (int i = 0; i < 1; i++) {
+                singleGameMode(players[0], players[1]);
+            }
+        } else {
+            long startTime = System.currentTimeMillis();
+            tournamentMode(players, 10);
+            kevin.saveWhatYouKnow();
+            long stopTime = System.currentTimeMillis();
+            long elapsedTime = stopTime - startTime;
+            System.out.println(elapsedTime);
+        }
     }
 
     /**
@@ -121,7 +124,7 @@ public class Connect4 {
         System.out.println("***********************************************\n");
 
 		/*
-		 * Produce Ranking:
+         * Produce Ranking:
 		 */
 
         TreeSet<Integer> points = new TreeSet<Integer>(ranking.values());

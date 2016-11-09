@@ -168,14 +168,14 @@ public class Connect4GameStateEvaluator {
         return inADiagonal;
     }
 
-    public int countFields(int[][] board, int symbol) {
+    public List<Field> countFields(int[][] board, int symbol) {
         int columns = board.length;
         int rows = board[0].length;
-        int inASingle = 0;
+        List<Field> inASingle = new ArrayList<Field>();
         for (int i = 0; i < columns; i++) {
             for (int j = 0; j < rows; j++) {
                 if (board[i][j] == symbol) {
-                    inASingle++;
+                    inASingle.add(new Field(i, j));
                 }
             }
         }
