@@ -30,7 +30,7 @@ public class Connect4 {
 
     public static void main(String[] args) {
 
-        final AIPlayerK kevin = new AIPlayerK("Kevin", true, 8);
+        final AIPlayerK kevin = new AIPlayerK("Kevin", false, 8);
         //final AIPlayerK hans = new AIPlayerK("Hans", false, 8);
         // Create players:
         Player[] players = {
@@ -41,7 +41,7 @@ public class Connect4 {
                 //new FirstColumnPlayer("FirstColumn"),
         };
 
-        if (false) {
+        if (true) {
             for (int i = 0; i < 1; i++) {
                 singleGameMode(players[0], players[1]);
             }

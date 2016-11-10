@@ -53,65 +53,42 @@ public class Connect4HeuristicCalculator extends GenericHeuristicCalculator<Conn
 
         final List<Connect4GameStateEvaluator.Field> opponentFields
                 = this.connect4GameStateEvaluator.countFields(node.getBoard(), 2);
-        payoff -= opponentFields.size() * this.baseValueSingle;
+        for (Connect4GameStateEvaluator.Field field : opponentFields) {
+            if (bestColumn != field.getX()) {
+                int delta = Math.abs(field.getX() - bestColumn);
+                payoff -= baseValueSingle / delta;
+            } else {
+                payoff -= baseValueSingle;
+            }
+        }
+
         return payoff;
     }
 
     private int doublePayoff(Connect4GameState node,
                              int columns, int rows) {
         int payoff = 0;
-        final int baseValueDouble = this.baseValueDouble * bestColumn;
-        java.util.function.Function<? super List<Connect4GameStateEvaluator.Field>, Integer> funcRow = (e) -> {
-            if (isImmediateInRow(node, e, columns, rows)) {
-                return baseValueDouble / 2;
-            }
-            return baseValueDouble;
-        };
-        java.util.function.Function<? super List<Connect4GameStateEvaluator.Field>, Integer> funcDiagonale = (e) -> {
-            if (isImmediateInDiagonal(node, e, columns, rows)) {
-                return baseValueDouble / 2;
-            }
-            return baseValueDouble;
-        };
-        payoff += this.connect4GameStateEvaluator.count2InRow(node, 1)
-                .stream().map(funcRow).mapToInt(i -> i.intValue()).sum();
-        payoff -= this.connect4GameStateEvaluator.count2InRow(node, 2)
-                .stream().map(funcRow).mapToInt(i -> i.intValue()).sum();
-        payoff += this.connect4GameStateEvaluator.count2InColumn(node, 1).size() * baseValueTripe;
-        payoff -= this.connect4GameStateEvaluator.count2InColumn(node, 2).size() * baseValueTripe;
-        payoff += this.connect4GameStateEvaluator.count2InDiagonal(node, 1)
-                .stream().map(funcDiagonale).mapToInt(i -> i.intValue()).sum();
-        payoff -= this.connect4GameStateEvaluator.count2InDiagonal(node, 2)
-                .stream().map(funcDiagonale).mapToInt(i -> i.intValue()).sum();
+        final int baseValueDouble = this.baseValueDouble;
+        payoff += this.connect4GameStateEvaluator.count3InRow(node, 1).size() * baseValueDouble;
+        payoff -= this.connect4GameStateEvaluator.count3InRow(node, 2).size() * baseValueDouble;
+        payoff += this.connect4GameStateEvaluator.count3InColumn(node, 1).size() * baseValueDouble;
+        payoff -= this.connect4GameStateEvaluator.count3InColumn(node, 2).size() * baseValueDouble;
+        payoff += this.connect4GameStateEvaluator.count3InDiagonal(node, 1).size() * baseValueDouble;
+        payoff -= this.connect4GameStateEvaluator.count3InDiagonal(node, 2).size() * baseValueDouble;
+
         return payoff;
     }
 
     private int triplePayoff(final Connect4GameState node,
                              final int columns, final int rows) {
         int payoff = 0;
-        final int baseValueTripe = this.baseValueTripe * bestColumn;
-        java.util.function.Function<? super List<Connect4GameStateEvaluator.Field>, Integer> funcRow = (e) -> {
-            if (isImmediateInRow(node, e, columns, rows)) {
-                return baseValueTripe / 2;
-            }
-            return baseValueTripe;
-        };
-        java.util.function.Function<? super List<Connect4GameStateEvaluator.Field>, Integer> funcDiagonale = (e) -> {
-            if (isImmediateInDiagonal(node, e, columns, rows)) {
-                return baseValueTripe / 2;
-            }
-            return baseValueTripe;
-        };
-        payoff += this.connect4GameStateEvaluator.count3InRow(node, 1)
-                .stream().map(funcRow).mapToInt(i -> i.intValue()).sum();
-        payoff -= this.connect4GameStateEvaluator.count3InRow(node, 2)
-                .stream().map(funcRow).mapToInt(i -> i.intValue()).sum();
-        payoff += this.connect4GameStateEvaluator.count3InColumn(node, 1).size() * baseValueTripe;
-        payoff -= this.connect4GameStateEvaluator.count3InColumn(node, 2).size() * baseValueTripe;
-        payoff += this.connect4GameStateEvaluator.count3InDiagonal(node, 1)
-                .stream().map(funcDiagonale).mapToInt(i -> i.intValue()).sum();
-        payoff -= this.connect4GameStateEvaluator.count3InDiagonal(node, 2)
-                .stream().map(funcDiagonale).mapToInt(i -> i.intValue()).sum();
+        final int baseValueTripe = this.baseValueTripe;
+        payoff += this.connect4GameStateEvaluator.count2InRow(node, 1).size() * baseValueTripe;
+        payoff -= this.connect4GameStateEvaluator.count2InRow(node, 2).size() * baseValueTripe;
+        payoff += this.connect4GameStateEvaluator.count2InColumn(node, 1).size() * baseValueTripe;
+        payoff -= this.connect4GameStateEvaluator.count2InColumn(node, 2).size() * baseValueTripe;
+        payoff += this.connect4GameStateEvaluator.count2InDiagonal(node, 1).size() * baseValueTripe;
+        payoff -= this.connect4GameStateEvaluator.count2InDiagonal(node, 2).size() * baseValueTripe;
         return payoff;
     }
 
