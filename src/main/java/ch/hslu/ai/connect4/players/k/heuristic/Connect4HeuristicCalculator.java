@@ -14,7 +14,6 @@ public class Connect4HeuristicCalculator extends GenericHeuristicCalculator<Conn
     private static final int baseValueDouble = 84; //1*42*2
     private static final int baseValueTripe = 1848; //=42*21+1*42*2
     private static final int baseValueQuadruple = 27720; //=924*14+42*21+1*42*2
-    private int bestColumn;
 
     public Connect4HeuristicCalculator() {
         this.connect4GameStateEvaluator = new Connect4GameStateEvaluator();
@@ -22,22 +21,23 @@ public class Connect4HeuristicCalculator extends GenericHeuristicCalculator<Conn
 
     public int getNodePayoff(Connect4GameState node) {
         int columns = node.getBoard().length;
-        int rows = node.getBoard()[0].length;
-        bestColumn = (columns - 1) * 10 / 20;
+        int bestColumn = (columns - 1) * 10 / 20;
+        int valueDouble = baseValueDouble * bestColumn;
+        int valueTripe = baseValueTripe * bestColumn;
+
         int payoff = 0;
         if (this.connect4GameStateEvaluator.didIWin(node)) {
             return baseValueQuadruple * bestColumn;
         } else if (this.connect4GameStateEvaluator.didOpponentWin(node)) {
             return -baseValueQuadruple * bestColumn;
         } else {
-            payoff += singlePayoff(node);
-            payoff += doublePayoff(node, columns, rows);
-            payoff += triplePayoff(node, columns, rows);
+            payoff += singlePayoff(node, bestColumn);
+            payoff += doubleTriplePayoff(node, valueDouble, valueTripe);
         }
         return payoff;
     }
 
-    private int singlePayoff(Connect4GameState node) {
+    private int singlePayoff(Connect4GameState node, int bestColumn) {
         int payoff = 0;
         final float baseValueSingle = this.baseValueSingle * bestColumn;
         final List<Connect4GameStateEvaluator.Field> myFields
@@ -65,88 +65,35 @@ public class Connect4HeuristicCalculator extends GenericHeuristicCalculator<Conn
         return payoff;
     }
 
-    private int doublePayoff(Connect4GameState node,
-                             int columns, int rows) {
+    private int doubleTriplePayoff(Connect4GameState node, int valueDouble, int valueTripe) {
+        final Connect4GameStateEvaluator.CombinedResult combinedResultColumn
+                = this.connect4GameStateEvaluator.fieldsInColumn(node.getBoard(), 1);
+        final Connect4GameStateEvaluator.CombinedResult combinedResultColumnOpponent
+                = this.connect4GameStateEvaluator.fieldsInColumn(node.getBoard(), 2);
+        final Connect4GameStateEvaluator.CombinedResult combinedResultRow
+                = this.connect4GameStateEvaluator.fieldsInRow(node.getBoard(), 1);
+        final Connect4GameStateEvaluator.CombinedResult combinedResultRowOpponent
+                = this.connect4GameStateEvaluator.fieldsInRow(node.getBoard(), 2);
+        final Connect4GameStateEvaluator.CombinedResult combinedResultDiagonal
+                = this.connect4GameStateEvaluator.fieldsInDiagonal(node.getBoard(), 1);
+        final Connect4GameStateEvaluator.CombinedResult combinedResultDiagonalOpponent
+                = this.connect4GameStateEvaluator.fieldsInDiagonal(node.getBoard(), 2);
         int payoff = 0;
-        final int baseValueDouble = this.baseValueDouble;
-        payoff += this.connect4GameStateEvaluator.count3InRow(node, 1).size() * baseValueDouble;
-        payoff -= this.connect4GameStateEvaluator.count3InRow(node, 2).size() * baseValueDouble;
-        payoff += this.connect4GameStateEvaluator.count3InColumn(node, 1).size() * baseValueDouble;
-        payoff -= this.connect4GameStateEvaluator.count3InColumn(node, 2).size() * baseValueDouble;
-        payoff += this.connect4GameStateEvaluator.count3InDiagonal(node, 1).size() * baseValueDouble;
-        payoff -= this.connect4GameStateEvaluator.count3InDiagonal(node, 2).size() * baseValueDouble;
+
+        payoff += combinedResultColumn.getDouble() * valueDouble;
+        payoff += combinedResultColumn.getTripe() * valueTripe;
+        payoff += combinedResultRow.getDouble() * valueDouble;
+        payoff += combinedResultRow.getTripe() * valueTripe;
+        payoff += combinedResultDiagonal.getDouble() * valueDouble;
+        payoff += combinedResultDiagonal.getTripe() * valueTripe;
+
+        payoff -= combinedResultColumnOpponent.getDouble() * valueDouble;
+        payoff -= combinedResultColumnOpponent.getTripe() * valueTripe;
+        payoff -= combinedResultRowOpponent.getDouble() * valueDouble;
+        payoff -= combinedResultRowOpponent.getTripe() * valueTripe;
+        payoff -= combinedResultDiagonalOpponent.getDouble() * valueDouble;
+        payoff -= combinedResultDiagonalOpponent.getTripe() * valueTripe;
 
         return payoff;
-    }
-
-    private int triplePayoff(final Connect4GameState node,
-                             final int columns, final int rows) {
-        int payoff = 0;
-        final int baseValueTripe = this.baseValueTripe;
-        payoff += this.connect4GameStateEvaluator.count2InRow(node, 1).size() * baseValueTripe;
-        payoff -= this.connect4GameStateEvaluator.count2InRow(node, 2).size() * baseValueTripe;
-        payoff += this.connect4GameStateEvaluator.count2InColumn(node, 1).size() * baseValueTripe;
-        payoff -= this.connect4GameStateEvaluator.count2InColumn(node, 2).size() * baseValueTripe;
-        payoff += this.connect4GameStateEvaluator.count2InDiagonal(node, 1).size() * baseValueTripe;
-        payoff -= this.connect4GameStateEvaluator.count2InDiagonal(node, 2).size() * baseValueTripe;
-        return payoff;
-    }
-
-    private boolean isImmediateInRow(Connect4GameState node, List<Connect4GameStateEvaluator.Field> fields,
-                                     int columns, int rows) {
-        boolean result = false;
-        if (fields.get(0).getX() < fields.get(1).getX()) {
-            int potentialX = fields.get(0).getX() - 1;
-            int potentialY = fields.get(0).getY() - 1;
-            if (potentialX >= 0 && potentialX <= columns
-                    && potentialY >= 0 && potentialY <= rows) {
-                result = node.getBoard()[potentialX][potentialY] != 0;
-            }
-        } else {
-            int potentialX = fields.get(0).getX() + 1;
-            int potentialY = fields.get(0).getY() - 1;
-            if (potentialX >= 0 && potentialX <= columns
-                    && potentialY >= 0 && potentialY <= rows) {
-                result = node.getBoard()[potentialX][potentialY] != 0;
-            }
-        }
-        return result;
-    }
-
-    private boolean isImmediateInDiagonal(Connect4GameState node, List<Connect4GameStateEvaluator.Field> fields,
-                                          int rows, int columns) {
-        boolean result = false;
-        int size = fields.size();
-        if (fields.get(0).getX() < fields.get(1).getX()) {
-            int potentialX = fields.get(0).getX() - 1;
-            int potentialY = fields.get(0).getY();
-            if (potentialX >= 0 && potentialX <= columns
-                    && potentialY >= 0 && potentialY <= rows) {
-                result = node.getBoard()[potentialX][potentialY] != 0;
-            }
-        } else {
-            int potentialX = fields.get(0).getX() + 1;
-            int potentialY = fields.get(0).getY();
-            if (potentialX >= 0 && potentialX <= columns
-                    && potentialY >= 0 && potentialY <= rows) {
-                result = node.getBoard()[potentialX][potentialY] != 0;
-            }
-        }
-        if (fields.get(size - 1).getX() < fields.get(size - 2).getX()) {
-            int potentialX = fields.get(size - 1).getX() - 1;
-            int potentialY = fields.get(size - 1).getY() - 2;
-            if (potentialX >= 0 && potentialX <= columns
-                    && potentialY >= 0 && potentialY <= rows) {
-                result = node.getBoard()[potentialX][potentialY] != 0 || result;
-            }
-        } else {
-            int potentialX = fields.get(0).getX() + 1;
-            int potentialY = fields.get(0).getY() - 2;
-            if (potentialX >= 0 && potentialX <= columns
-                    && potentialY >= 0 && potentialY <= rows) {
-                result = node.getBoard()[potentialX][potentialY] != 0 || result;
-            }
-        }
-        return result;
     }
 }

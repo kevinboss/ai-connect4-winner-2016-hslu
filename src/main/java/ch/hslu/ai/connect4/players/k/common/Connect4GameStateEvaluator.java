@@ -9,6 +9,35 @@ import java.util.List;
  * Created by Kevin Boss on 03.11.2016.
  */
 public class Connect4GameStateEvaluator {
+    private static final int[][] doublePermutations1 = new int[][]{
+            new int[]{0, 0, 1, 1},
+            new int[]{0, 1, 0, 1},
+            new int[]{1, 0, 0, 1},
+            new int[]{1, 0, 1, 0},
+            new int[]{1, 1, 0, 0},
+            new int[]{0, 1, 1, 0}
+    };
+    private static final int[][] tripePermutations1 = new int[][]{
+            new int[]{0, 1, 1, 1},
+            new int[]{1, 0, 1, 1},
+            new int[]{1, 1, 0, 1},
+            new int[]{1, 1, 1, 0}
+    };
+    private static final int[][] doublePermutations2 = new int[][]{
+            new int[]{0, 0, 2, 2},
+            new int[]{0, 2, 0, 2},
+            new int[]{2, 0, 0, 2},
+            new int[]{2, 0, 2, 0},
+            new int[]{2, 2, 0, 0},
+            new int[]{0, 2, 2, 0}
+    };
+    private static final int[][] tripePermutations2 = new int[][]{
+            new int[]{0, 2, 2, 2},
+            new int[]{2, 0, 2, 2},
+            new int[]{2, 2, 0, 2},
+            new int[]{2, 2, 2, 0}
+    };
+
     public boolean isInitialStateForMe(Connect4GameState gameState) {
         int[][] board = gameState.getBoard();
         if (!Ints.contains(Ints.concat(board), 1)) {
@@ -44,134 +73,31 @@ public class Connect4GameStateEvaluator {
     }
 
     public boolean didIWin(Connect4GameState gameState) {
-        int[][] board = gameState.getBoard();
-        return hasFourInColumn(board, 1)
-                || hasFourInDiagonal(board, 1)
-                || hasFourInRow(board, 1);
+        return hasFour(gameState.getBoard(), 1);
     }
 
     public boolean didOpponentWin(Connect4GameState gameState) {
-        int[][] board = gameState.getBoard();
-        return hasFourInColumn(board, 2)
-                || hasFourInDiagonal(board, 2)
-                || hasFourInRow(board, 2);
+        return hasFour(gameState.getBoard(), 2);
     }
 
-    private boolean hasFourInColumn(int[][] board, int symbol) {
-        if (countXFieldsInColumn(board, symbol, 4, true).size() > 0) {
-            return true;
+    private boolean hasFour(int[][] board, int symbol) {
+        final List<int[]> allGroups = getAllGroupsInColumn(board);
+        allGroups.addAll(getAllGroupsInRow(board));
+        allGroups.addAll(getAllGroupsInDiagonal(board));
+        for (int[] group : allGroups) {
+            if (equal(group, new int[][]{
+                    new int[]{symbol, symbol, symbol, symbol}
+            })) {
+                return true;
+            }
         }
         return false;
-    }
-
-    private boolean hasFourInRow(int[][] board, int symbol) {
-        if (countXFieldsInRow(board, symbol, 4, true).size() > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean hasFourInDiagonal(int[][] board, int symbol) {
-        if (countXFieldsInDiagonal(board, symbol, 4, true).size() > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    private List<List<Field>> countXFieldsInColumn(int[][] board, int symbol, int xInAColumn, boolean returnOnFirst) {
-        int columns = board.length;
-        int rows = board[0].length;
-        List<List<Field>> inAColumn = new ArrayList<List<Field>>();
-        for (int i = 0; i < columns; i++) {
-            int counter = 0;
-            List<Field> potentialGroup = new ArrayList<Field>();
-            for (int j = 0; j < rows && counter < xInAColumn; j++) {
-                if (board[i][j] == symbol) {
-                    counter++;
-                    potentialGroup.add(new Field(i, j));
-                } else {
-                    counter = 0;
-                }
-            }
-            if (counter == xInAColumn) {
-                inAColumn.add(potentialGroup);
-                if (returnOnFirst) {
-                    return inAColumn;
-                }
-            }
-        }
-        return inAColumn;
-    }
-
-    private List<List<Field>> countXFieldsInRow(int[][] board, int symbol, int xInARow, boolean returnOnFirst) {
-        int columns = board.length;
-        int rows = board[0].length;
-        List<List<Field>> inARow = new ArrayList<List<Field>>();
-        for (int i = 0; i < rows; i++) {
-            int counter = 0;
-            List<Field> potentialGroup = new ArrayList<Field>();
-            for (int j = 0; j < columns && counter < xInARow; j++) {
-                if (board[j][i] == symbol) {
-                    counter++;
-                    potentialGroup.add(new Field(j, i));
-                } else {
-                    counter = 0;
-                }
-            }
-            if (counter == xInARow) {
-                inARow.add(potentialGroup);
-                if (returnOnFirst) {
-                    return inARow;
-                }
-            }
-        }
-        return inARow;
-    }
-
-    private List<List<Field>> countXFieldsInDiagonal(int[][] board, int symbol, int xInARow, boolean returnOnFirst) {
-        int columns = board.length;
-        int rows = board[0].length;
-        List<List<Field>> inADiagonal = new ArrayList<List<Field>>();
-        for (int i = 0; i <= columns - xInARow; i++) {
-            for (int j = 0; j <= rows - xInARow; j++) {
-                int[] cells = new int[xInARow];
-                List<Field> potentialGroup = new ArrayList<Field>();
-                for (int c = 0; c < xInARow; c++) {
-                    cells[c] = board[i + c][j + c];
-                    potentialGroup.add(new Field(i + c, j + c));
-                }
-                if (equal(cells, symbol)) {
-                    inADiagonal.add(potentialGroup);
-                    if (returnOnFirst) {
-                        return inADiagonal;
-                    }
-                }
-            }
-        }
-
-        for (int i = columns - 1; i >= xInARow - 1; i--) {
-            for (int j = 0; j <= rows - xInARow; j++) {
-                int[] cells = new int[xInARow];
-                List<Field> potentialGroup = new ArrayList<Field>();
-                for (int c = 0; c < xInARow; c++) {
-                    cells[c] = board[i - c][j + c];
-                    potentialGroup.add(new Field(i + c, j + c));
-                }
-                if (equal(cells, symbol)) {
-                    inADiagonal.add(potentialGroup);
-                    if (returnOnFirst) {
-                        return inADiagonal;
-                    }
-                }
-            }
-        }
-        return inADiagonal;
     }
 
     public List<Field> countFields(int[][] board, int symbol) {
         int columns = board.length;
         int rows = board[0].length;
-        List<Field> inASingle = new ArrayList<Field>();
+        List<Field> inASingle = new ArrayList<>();
         for (int i = 0; i < columns; i++) {
             for (int j = 0; j < rows; j++) {
                 if (board[i][j] == symbol) {
@@ -182,37 +108,136 @@ public class Connect4GameStateEvaluator {
         return inASingle;
     }
 
-    private boolean equal(int[] array, int symbol) {
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] != symbol) {
-                return false;
+    public CombinedResult fieldsInColumn(int[][] board, int symbol) {
+        final List<int[]> allGroupsInColumn = getAllGroupsInColumn(board);
+        final int tuplesInARow = countEqualGroups(allGroupsInColumn,
+                symbol == 1 ? doublePermutations1 : doublePermutations2);
+        final int triplesInARow = countEqualGroups(allGroupsInColumn,
+                symbol == 1 ? tripePermutations1 : tripePermutations2);
+        return new CombinedResult(tuplesInARow, triplesInARow);
+    }
+
+    private List<int[]> getAllGroupsInColumn(int[][] board) {
+        int columns = board.length;
+        int rows = board[0].length;
+        List<int[]> result = new ArrayList<>();
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < rows - 3; j++) {
+                int[] cells = new int[4];
+                for (int c = 0; c < 4; c++) {
+                    cells[c] = board[i][j + c];
+                }
+                result.add(cells);
             }
         }
-        return true;
+        return result;
     }
 
-    public List<List<Field>> count2InRow(Connect4GameState node, int i) {
-        return countXFieldsInRow(node.getBoard(), i, 2, false);
+    public CombinedResult fieldsInRow(int[][] board, int symbol) {
+        final List<int[]> allGroupsInRow = getAllGroupsInRow(board);
+        final int tuplesInARow = countEqualGroups(allGroupsInRow,
+                symbol == 1 ? doublePermutations1 : doublePermutations2);
+        final int triplesInARow = countEqualGroups(allGroupsInRow,
+                symbol == 1 ? tripePermutations1 : tripePermutations2);
+        return new CombinedResult(tuplesInARow, triplesInARow);
     }
 
-    public List<List<Field>> count3InRow(Connect4GameState node, int i) {
-        return countXFieldsInRow(node.getBoard(), i, 3, false);
+    private List<int[]> getAllGroupsInRow(int[][] board) {
+        int columns = board.length;
+        int rows = board[0].length;
+        List<int[]> result = new ArrayList<>();
+        for (int i = 0; i < columns - 3; i++) {
+            for (int j = 0; j < rows; j++) {
+                int[] cells = new int[4];
+                for (int c = 0; c < 4; c++) {
+                    cells[c] = board[i + c][j];
+                }
+                result.add(cells);
+            }
+        }
+        return result;
     }
 
-    public List<List<Field>> count2InColumn(Connect4GameState node, int i) {
-        return countXFieldsInColumn(node.getBoard(), i, 2, false);
+    public CombinedResult fieldsInDiagonal(int[][] board, int symbol) {
+        final List<int[]> allGroupsInDiagonal = getAllGroupsInDiagonal(board);
+        final int doubleInADiagonal = countEqualGroups(allGroupsInDiagonal,
+                symbol == 1 ? doublePermutations1 : doublePermutations2);
+        final int tripeInADiagonal = countEqualGroups(allGroupsInDiagonal,
+                symbol == 1 ? tripePermutations1 : tripePermutations2);
+        return new CombinedResult(doubleInADiagonal, tripeInADiagonal);
     }
 
-    public List<List<Field>> count3InColumn(Connect4GameState node, int i) {
-        return countXFieldsInColumn(node.getBoard(), i, 3, false);
+    private List<int[]> getAllGroupsInDiagonal(int[][] board) {
+        int columns = board.length;
+        int rows = board[0].length;
+        List<int[]> result = new ArrayList<>();
+        for (int i = 0; i <= columns - 4; i++) {
+            for (int j = 0; j <= rows - 4; j++) {
+                int[] cells = new int[4];
+                for (int c = 0; c < 4; c++) {
+                    cells[c] = board[i + c][j + c];
+                }
+                result.add(cells);
+            }
+        }
+
+        for (int i = columns - 1; i >= 4 - 1; i--) {
+            for (int j = 0; j <= rows - 4; j++) {
+                int[] cells = new int[4];
+                for (int c = 0; c < 4; c++) {
+                    cells[c] = board[i - c][j + c];
+                }
+                result.add(cells);
+            }
+        }
+        return result;
     }
 
-    public List<List<Field>> count2InDiagonal(Connect4GameState node, int i) {
-        return countXFieldsInDiagonal(node.getBoard(), i, 2, false);
+    private int countEqualGroups(List<int[]> groupsInDiagonal, int[][] permutations) {
+        int inADiagonal = 0;
+        for (int[] group : groupsInDiagonal) {
+            if (equal(group, permutations)) {
+                inADiagonal++;
+            }
+        }
+        return inADiagonal;
     }
 
-    public List<List<Field>> count3InDiagonal(Connect4GameState node, int i) {
-        return countXFieldsInDiagonal(node.getBoard(), i, 3, false);
+    private boolean equal(int[] array, int[][] permutations) {
+        for (int[] permutation : permutations) {
+            if (array.length == permutation.length) {
+                int counter = 0;
+                for (int i = 0; i < array.length; i++) {
+                    if (array[i] == permutation[i]) {
+                        counter++;
+                    } else {
+                        i = array.length;
+                    }
+                }
+                if (counter == array.length) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public class CombinedResult {
+        private int tuples;
+        private int triples;
+
+        public CombinedResult(int tuples, int triples) {
+            this.tuples = tuples;
+            this.triples = triples;
+        }
+
+        public int getTripe() {
+            return triples;
+        }
+
+        public int getDouble() {
+            return tuples;
+        }
     }
 
     public class Field {

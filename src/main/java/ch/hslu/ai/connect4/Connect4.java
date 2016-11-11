@@ -41,13 +41,13 @@ public class Connect4 {
                 //new FirstColumnPlayer("FirstColumn"),
         };
 
-        if (true) {
+        if (false) {
             for (int i = 0; i < 1; i++) {
                 singleGameMode(players[0], players[1]);
             }
         } else {
             long startTime = System.currentTimeMillis();
-            tournamentMode(players, 1000);
+            tournamentMode(players, 10);
             kevin.saveWhatYouKnow();
             long stopTime = System.currentTimeMillis();
             long elapsedTime = stopTime - startTime;
