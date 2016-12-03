@@ -108,13 +108,14 @@ public class Connect4GameStateEvaluator {
         return inASingle;
     }
 
-    public CombinedResult fieldsInColumn(int[][] board, int symbol) {
+    public CombinedResult fieldsInColumn(int[][] board) {
         final List<int[]> allGroupsInColumn = getAllGroupsInColumn(board);
-        final int tuplesInARow = countEqualGroups(allGroupsInColumn,
-                symbol == 1 ? doublePermutations1 : doublePermutations2);
-        final int triplesInARow = countEqualGroups(allGroupsInColumn,
-                symbol == 1 ? tripePermutations1 : tripePermutations2);
-        return new CombinedResult(tuplesInARow, triplesInARow);
+        final int tuplesInARow = countEqualGroups(allGroupsInColumn, doublePermutations1);
+        final int triplesInARow = countEqualGroups(allGroupsInColumn, tripePermutations1);
+        final int tuplesInARowOpponent = countEqualGroups(allGroupsInColumn, doublePermutations1);
+        final int triplesInARowOpponent = countEqualGroups(allGroupsInColumn, tripePermutations1);
+        return new CombinedResult(tuplesInARow, triplesInARow,
+                tuplesInARowOpponent, triplesInARowOpponent);
     }
 
     private List<int[]> getAllGroupsInColumn(int[][] board) {
@@ -133,13 +134,14 @@ public class Connect4GameStateEvaluator {
         return result;
     }
 
-    public CombinedResult fieldsInRow(int[][] board, int symbol) {
+    public CombinedResult fieldsInRow(int[][] board) {
         final List<int[]> allGroupsInRow = getAllGroupsInRow(board);
-        final int tuplesInARow = countEqualGroups(allGroupsInRow,
-                symbol == 1 ? doublePermutations1 : doublePermutations2);
-        final int triplesInARow = countEqualGroups(allGroupsInRow,
-                symbol == 1 ? tripePermutations1 : tripePermutations2);
-        return new CombinedResult(tuplesInARow, triplesInARow);
+        final int tuplesInARow = countEqualGroups(allGroupsInRow, doublePermutations1);
+        final int triplesInARow = countEqualGroups(allGroupsInRow, tripePermutations1);
+        final int tuplesInARowOpponent = countEqualGroups(allGroupsInRow, doublePermutations1);
+        final int triplesInARowOpponent = countEqualGroups(allGroupsInRow, tripePermutations1);
+        return new CombinedResult(tuplesInARow, triplesInARow,
+                tuplesInARowOpponent, triplesInARowOpponent);
     }
 
     private List<int[]> getAllGroupsInRow(int[][] board) {
@@ -158,13 +160,14 @@ public class Connect4GameStateEvaluator {
         return result;
     }
 
-    public CombinedResult fieldsInDiagonal(int[][] board, int symbol) {
+    public CombinedResult fieldsInDiagonal(int[][] board) {
         final List<int[]> allGroupsInDiagonal = getAllGroupsInDiagonal(board);
-        final int doubleInADiagonal = countEqualGroups(allGroupsInDiagonal,
-                symbol == 1 ? doublePermutations1 : doublePermutations2);
-        final int tripeInADiagonal = countEqualGroups(allGroupsInDiagonal,
-                symbol == 1 ? tripePermutations1 : tripePermutations2);
-        return new CombinedResult(doubleInADiagonal, tripeInADiagonal);
+        final int doubleInADiagonal = countEqualGroups(allGroupsInDiagonal, doublePermutations1);
+        final int tripeInADiagonal = countEqualGroups(allGroupsInDiagonal, tripePermutations1);
+        final int doubleInADiagonalOpponent = countEqualGroups(allGroupsInDiagonal, doublePermutations2);
+        final int tripeInADiagonalOpponent = countEqualGroups(allGroupsInDiagonal, tripePermutations2);
+        return new CombinedResult(doubleInADiagonal, tripeInADiagonal,
+                doubleInADiagonalOpponent, tripeInADiagonalOpponent);
     }
 
     private List<int[]> getAllGroupsInDiagonal(int[][] board) {
@@ -225,18 +228,30 @@ public class Connect4GameStateEvaluator {
     public class CombinedResult {
         private int tuples;
         private int triples;
+        private final int tuplesOpponent;
+        private final int triplesOpponent;
 
-        public CombinedResult(int tuples, int triples) {
+        public CombinedResult(int tuples, int triples, int tuplesOpponent, int triplesOpponent) {
             this.tuples = tuples;
             this.triples = triples;
+            this.tuplesOpponent = tuplesOpponent;
+            this.triplesOpponent = triplesOpponent;
         }
 
         public int getTripe() {
             return triples;
         }
 
-        public int getDouble() {
+        public int getTuples() {
             return tuples;
+        }
+
+        public int getTriplesOpponent() {
+            return triplesOpponent;
+        }
+
+        public int getTuplesOpponent() {
+            return tuplesOpponent;
         }
     }
 

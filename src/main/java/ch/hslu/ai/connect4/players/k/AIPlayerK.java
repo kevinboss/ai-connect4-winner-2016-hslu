@@ -71,7 +71,8 @@ public class AIPlayerK extends Player {
         if (this.learningMode) {
             depth = this.learningDepth;
         }
-        final Connect4GameState bestMoveNode = this.connect4MiniMax.getBestMove(connect4GameState, depth, true);
+        final Connect4GameState bestMoveNode
+                = this.connect4MiniMax.getBestMove(connect4GameState, depth, true);
         return ((Connect4Turn) bestMoveNode.getTurn()).getColumn();
     }
 

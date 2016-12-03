@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by Kevin Boss on 05.11.2016.
  */
-public class Connect4HeuristicCalculator extends GenericHeuristicCalculator<Connect4GameState> {
+public class Connect4HeuristicCalculator implements GenericHeuristicCalculator<Connect4GameState> {
     private final Connect4GameStateEvaluator connect4GameStateEvaluator;
     private static final float baseValueSingle = 1;
     private static final int baseValueDouble = 84; //1*42*2
@@ -67,32 +67,27 @@ public class Connect4HeuristicCalculator extends GenericHeuristicCalculator<Conn
 
     private int doubleTriplePayoff(Connect4GameState node, int valueDouble, int valueTripe) {
         final Connect4GameStateEvaluator.CombinedResult combinedResultColumn
-                = this.connect4GameStateEvaluator.fieldsInColumn(node.getBoard(), 1);
-        final Connect4GameStateEvaluator.CombinedResult combinedResultColumnOpponent
-                = this.connect4GameStateEvaluator.fieldsInColumn(node.getBoard(), 2);
+                = this.connect4GameStateEvaluator.fieldsInColumn(node.getBoard());
         final Connect4GameStateEvaluator.CombinedResult combinedResultRow
-                = this.connect4GameStateEvaluator.fieldsInRow(node.getBoard(), 1);
-        final Connect4GameStateEvaluator.CombinedResult combinedResultRowOpponent
-                = this.connect4GameStateEvaluator.fieldsInRow(node.getBoard(), 2);
+                = this.connect4GameStateEvaluator.fieldsInRow(node.getBoard());
         final Connect4GameStateEvaluator.CombinedResult combinedResultDiagonal
-                = this.connect4GameStateEvaluator.fieldsInDiagonal(node.getBoard(), 1);
-        final Connect4GameStateEvaluator.CombinedResult combinedResultDiagonalOpponent
-                = this.connect4GameStateEvaluator.fieldsInDiagonal(node.getBoard(), 2);
+                = this.connect4GameStateEvaluator.fieldsInDiagonal(node.getBoard());
+
         int payoff = 0;
 
-        payoff += combinedResultColumn.getDouble() * valueDouble;
+        payoff += combinedResultColumn.getTuples() * valueDouble;
         payoff += combinedResultColumn.getTripe() * valueTripe;
-        payoff += combinedResultRow.getDouble() * valueDouble;
+        payoff += combinedResultRow.getTuples() * valueDouble;
         payoff += combinedResultRow.getTripe() * valueTripe;
-        payoff += combinedResultDiagonal.getDouble() * valueDouble;
+        payoff += combinedResultDiagonal.getTuples() * valueDouble;
         payoff += combinedResultDiagonal.getTripe() * valueTripe;
 
-        payoff -= combinedResultColumnOpponent.getDouble() * valueDouble;
-        payoff -= combinedResultColumnOpponent.getTripe() * valueTripe;
-        payoff -= combinedResultRowOpponent.getDouble() * valueDouble;
-        payoff -= combinedResultRowOpponent.getTripe() * valueTripe;
-        payoff -= combinedResultDiagonalOpponent.getDouble() * valueDouble;
-        payoff -= combinedResultDiagonalOpponent.getTripe() * valueTripe;
+        payoff -= combinedResultColumn.getTuplesOpponent() * valueDouble;
+        payoff -= combinedResultColumn.getTriplesOpponent() * valueTripe;
+        payoff -= combinedResultRow.getTuplesOpponent() * valueDouble;
+        payoff -= combinedResultRow.getTriplesOpponent() * valueTripe;
+        payoff -= combinedResultDiagonal.getTuplesOpponent() * valueDouble;
+        payoff -= combinedResultDiagonal.getTriplesOpponent() * valueTripe;
 
         return payoff;
     }
