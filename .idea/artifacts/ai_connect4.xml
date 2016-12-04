@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ai_connect4">
+    <output-path>$PROJECT_DIR$/out/artifacts/ai_connect4</output-path>
+    <root id="archive" name="ai_connect4.jar">
+      <element id="module-output" name="connect4" />
+      <element id="file-copy" path="$PROJECT_DIR$/resources/617861577_knowledge_base.con4kb" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+    </root>
+  </artifact>
+</component>

@@ -4,10 +4,7 @@ import ch.hslu.ai.connect4.players.k.common.BaseNode;
 import ch.hslu.ai.connect4.players.k.common.BaseTurn;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Kevin Boss on 03.11.2016.
@@ -39,14 +36,21 @@ public abstract class GenericKnowledgeBase<NodeT extends BaseNode, TurnT extends
         }
     }
 
-    public void deSerialize(String filepath) {
+    /**
+     * @param filename The name of the knowledgebase file. Has to be within the classpath,
+     *                 e.g. inside the jar or provided by the classpath-argument when starting the program.
+     */
+    public void deSerialize(String filename) {
         Map<Integer, List<KnowledgeEntry>> e = null;
-        try {
-            FileInputStream fileIn = new FileInputStream(filepath);
-            ObjectInputStream in = new ObjectInputStream(fileIn);
-            e = (Map<Integer, List<KnowledgeEntry>>) in.readObject();
-            in.close();
-            fileIn.close();
+        try (
+                InputStream stream = getClass().getClassLoader().getResourceAsStream(filename)
+        ) {
+            if (stream != null) {
+                ObjectInputStream in = new ObjectInputStream(stream);
+                e = (Map<Integer, List<KnowledgeEntry>>) in.readObject();
+            } else {
+                System.out.printf("KB with filename [%s] could not be found or opened.\n", filename);
+            }
         } catch (IOException i) {
             System.out.println("No kb file existing.");
         } catch (ClassNotFoundException c) {
