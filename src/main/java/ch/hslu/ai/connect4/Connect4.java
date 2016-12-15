@@ -35,7 +35,7 @@ public class Connect4 {
         // Create players:
         Player[] players = {
                 //new FirstRowPlayer("FR"),
-                new RandomPlayer("Random"),
+                new RandomPlayer("Captain Awesome"),
                 kevin,
                 //hans,
                 //new FirstColumnPlayer("FirstColumn"),

@@ -18,11 +18,13 @@ public class Connect4MiniMax extends GenericMiniMax<Connect4GameState> {
         super(threadAmount, heuristicCalculator);
     }
 
+    @Override
     protected boolean isTerminalNode(Connect4GameState node) {
         return this.connect4GameStateEvaluator.isGameDrawn(node)
                 || this.connect4GameStateEvaluator.didAnyoneWin(node);
     }
 
+    @Override
     protected List<Connect4GameState> getNodeChildren(Connect4GameState node, boolean maximizingPlayer) {
         List<Connect4GameState> children = new ArrayList<Connect4GameState>();
         int player = maximizingPlayer ? 1 : 2;

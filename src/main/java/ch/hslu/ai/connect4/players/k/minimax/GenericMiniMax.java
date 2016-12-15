@@ -67,6 +67,24 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
         }
     }
 
+    private class MoveWithPayoff {
+        private NodeT move;
+        private int payoff;
+
+        private MoveWithPayoff(NodeT move, int payoff) {
+            this.move = move;
+            this.payoff = payoff;
+        }
+
+        public NodeT getMove() {
+            return move;
+        }
+
+        public int getPayoff() {
+            return payoff;
+        }
+    }
+
     public NodeT getBestMove(final NodeT node,
                              final int depth, boolean evaluatePossibleMovedIndependently) throws ExecutionException, InterruptedException {
         int bestMovePayoff = 0;
@@ -74,41 +92,51 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
         final List<NodeT> possibleMoves = getNodeChildren(node, true);
 
         if (evaluatePossibleMovedIndependently) {
-            List<CompletableFuture<Optional<MoveWithPayoff>>> resultFutures
-                    = new ArrayList<>(possibleMoves.size());
-            for (final NodeT possibleMove : possibleMoves) {
-                CompletableFuture<Optional<MoveWithPayoff>> future = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        final int result = alphabetaCached(possibleMove, depth, null, null, false);
-                        return Optional.of(new MoveWithPayoff(possibleMove, result));
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    return Optional.empty();
-                });
-                resultFutures.add(future);
-            }
-            List<MoveWithPayoff> results = new ArrayList<>();
-            for (CompletableFuture<Optional<MoveWithPayoff>> resultFuture : resultFutures) {
-                final Optional<MoveWithPayoff> moveWithPayoff = resultFuture.get();
-                moveWithPayoff.ifPresent(results::add);
-            }
-
-            for (MoveWithPayoff result : results) {
-                if (chosenMove == null || result.getPayoff() > bestMovePayoff) {
-                    bestMovePayoff = result.getPayoff();
-                    chosenMove = result.getMove();
-                }
-            }
+            chosenMove = evaluateMovesParallel(depth, bestMovePayoff, chosenMove, possibleMoves);
         } else {
-            for (NodeT possibleMove : possibleMoves) {
-                final int result = alphabetaCached(possibleMove, depth, null, null, false);
-                if (chosenMove == null || result > bestMovePayoff) {
-                    bestMovePayoff = result;
-                    chosenMove = possibleMove;
+            chosenMove = evaluateMovesAfterEachOther(depth, bestMovePayoff, chosenMove, possibleMoves);
+        }
+        return chosenMove;
+    }
+
+    private NodeT evaluateMovesAfterEachOther(int depth, int bestMovePayoff, NodeT chosenMove, List<NodeT> possibleMoves) throws ExecutionException, InterruptedException {
+        for (NodeT possibleMove : possibleMoves) {
+            final int result = alphabetaCached(possibleMove, depth, null, null, false);
+            if (chosenMove == null || result > bestMovePayoff) {
+                bestMovePayoff = result;
+                chosenMove = possibleMove;
+            }
+        }
+        return chosenMove;
+    }
+
+    private NodeT evaluateMovesParallel(int depth, int bestMovePayoff, NodeT chosenMove, List<NodeT> possibleMoves) throws InterruptedException, ExecutionException {
+        List<CompletableFuture<Optional<MoveWithPayoff>>> resultFutures
+                = new ArrayList<>(possibleMoves.size());
+        for (final NodeT possibleMove : possibleMoves) {
+            CompletableFuture<Optional<MoveWithPayoff>> future = CompletableFuture.supplyAsync(() -> {
+                try {
+                    final int result = alphabetaCached(possibleMove, depth, null, null, false);
+                    return Optional.of(new MoveWithPayoff(possibleMove, result));
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+                return Optional.empty();
+            });
+            resultFutures.add(future);
+        }
+        List<MoveWithPayoff> results = new ArrayList<>();
+        for (CompletableFuture<Optional<MoveWithPayoff>> resultFuture : resultFutures) {
+            final Optional<MoveWithPayoff> moveWithPayoff = resultFuture.get();
+            moveWithPayoff.ifPresent(results::add);
+        }
+
+        for (MoveWithPayoff result : results) {
+            if (chosenMove == null || result.getPayoff() > bestMovePayoff) {
+                bestMovePayoff = result.getPayoff();
+                chosenMove = result.getMove();
             }
         }
         return chosenMove;
@@ -158,24 +186,6 @@ abstract class GenericMiniMax<NodeT extends BaseNode> {
                 }
                 return beta;
             }
-        }
-    }
-
-    private class MoveWithPayoff {
-        private NodeT move;
-        private int payoff;
-
-        private MoveWithPayoff(NodeT move, int payoff) {
-            this.move = move;
-            this.payoff = payoff;
-        }
-
-        public NodeT getMove() {
-            return move;
-        }
-
-        public int getPayoff() {
-            return payoff;
         }
     }
 }

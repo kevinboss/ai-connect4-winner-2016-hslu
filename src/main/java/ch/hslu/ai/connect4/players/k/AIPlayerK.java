@@ -67,7 +67,7 @@ public class AIPlayerK extends Player {
     }
 
     private int getBestMove(Connect4GameState connect4GameState) throws java.util.concurrent.ExecutionException, InterruptedException {
-        int depth = 5;
+        int depth = 6;
         if (this.learningMode) {
             depth = this.learningDepth;
         }
